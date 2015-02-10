@@ -1,0 +1,145 @@
+body {
+	background-color: rgb(244,244,244);
+	color: rgb(60,60,60);
+	font-family: "Helvetica Neue", Arial, sans-serif;
+}
+
+.font-weight-medium {
+	font-weight: 500;
+}
+
+.title {
+	font-family: "Varela Round";
+	letter-spacing: -0.2px;
+}
+
+/* Question ----------------------------------------*/
+.questionList {
+	max-width: 400px;
+	margin: 0 auto;
+}
+
+.question {
+	padding: 8px 8px;
+	background-color: white;
+	border-radius: 5px;
+	box-shadow: 1px 1px 5px rgb(190,190,190);
+	margin-bottom: 10px;
+}
+
+/* Question Header ----------------------------------*/
+.questionHeader {
+	padding-bottom: 6px;
+	font-size: 14px;
+	border-bottom: thin solid rgb(224,224,224);
+	position: relative;
+}
+
+.questionAvatar {
+	width: 34px;
+	height: 34px;
+	border-radius: 17px;
+	background-color: rgb(78,106,164);
+}
+
+.questionUsername {
+	position: absolute;
+	top: 0px;
+	left: 40px;
+	font-weight: 500;
+}
+.questionCategory {
+	position: absolute;
+	top: 18px;
+	left: 40px;
+	color: rgb(151,151,151);
+}
+
+.questionScore {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	font-weight: 500;
+}
+
+.questionScoreAccessory {
+	position: absolute;
+	top: 18px;
+	right: 0px;
+	color: rgb(151,151,151);
+}
+
+/* Question Content -----------------------------------*/
+.questionContent {
+	position: relative;
+	margin-top: 10px;
+	letter-spacing: -0.2px;
+}
+
+.questionText {
+	margin-bottom: 10px;
+	font-size: 17px;
+}
+
+.answerList {
+	margin-top: -5px;
+	margin-left: 20px;
+	margin-bottom: 10px;
+	font-size: 14px;
+}
+
+.answerList li {
+	margin-left: -20px; /* Makes answers line up with header */
+	margin-bottom: 0px;
+	color: rgb(100,100,100); /* Not sure */
+}
+
+.answerList p {
+	margin-top: 8px;
+	margin-bottom: 0px;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+/* If Answered ----------------------------------------*/
+
+.ifAnswered {
+	position: relative;
+}
+
+.discussionCard {
+	background-color: rgb(109,207,246);
+	color: white;
+	border-radius: 5px;
+	padding: 8px 8px;
+	height: 60px; /* TEMPORARY */
+
+    -ms-transform: rotate(-2deg); /* IE 9 */
+    -webkit-transform: rotate(-2deg); /* Chrome, Safari, Opera */
+    transform: rotate(-2deg);
+}
+
+.analysisCard {
+	background-color: rgb(28,187,280);
+	color: white;
+	border-radius: 5px;
+	padding: 8px 8px;
+	height: 60px; /* TEMPORARY */
+	margin-top: -15px;
+
+    -ms-transform: rotate(-1deg); /* IE 9 */
+    -webkit-transform: rotate(-1deg); /* Chrome, Safari, Opera */
+    transform: rotate(-1deg);
+}
+
+.questionBottomMask { /* This is kind of hacky - is there a better way to hide overflow?*/
+	background-color: white;
+	position: relative;
+	height: 14px;
+	z-index: 100;
+	margin-top: -10px;
+	margin-right: -8px;
+	margin-left: -8px;
+	margin-bottom: -8px;
+	border-radius: 5px;
+}
