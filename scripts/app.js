@@ -131,7 +131,7 @@ var AnswerList = React.createClass({
 	render() {
 		var answerNodes = this.props.answerList.map(function (answer) {
 			return (
-				<li><p onClick={this.props.onResponse}>{answer.answer_text}</p></li>
+				<Answer onResponse={this.props.onResponse} answerText={answer.answer_text}/>
 			);
 		}.bind(this));
 		return (
@@ -140,6 +140,27 @@ var AnswerList = React.createClass({
 					{answerNodes}
 				</ol>
 			</div>
+		);
+	}
+});
+
+var Answer = React.createClass({
+	getInitialState() {
+		return {isAnswered: false};
+	},
+	handleResponse(e) {
+		this.props.onResponse();
+		this.setState({isAnswered: true});
+	},
+	render() {
+		var answer;
+		if (this.state.isAnswered) {
+			answer = <li><div className="answered"><p onClick={this.handleResponse}>{this.props.answerText}</p></div></li>;
+		} else {
+			answer = <li><p onClick={this.handleResponse}>{this.props.answerText}</p></li>;
+		}
+		return (
+			<div>{answer}</div>
 		);
 	}
 });

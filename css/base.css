@@ -101,6 +101,11 @@ body {
 	cursor: pointer;
 }
 
+.answered p {
+	color: rgb(28,187,280);
+	font-weight: 500;
+}
+
 /* If Answered ----------------------------------------*/
 
 .ifAnswered {
