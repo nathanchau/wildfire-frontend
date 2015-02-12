@@ -8,7 +8,9 @@ var QuestionBox = React.createClass({
       url: this.props.url,
       dataType: 'json',
       success: function(data) {
-        this.setState({data: data});
+      	if (this.isMounted()) {
+        	this.setState({data: data});
+        }
       }.bind(this),
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
@@ -26,7 +28,7 @@ var QuestionBox = React.createClass({
 	render: function() {
 		return (
 			<div className="questionBox">
-				<QuestionList data={this.state.data}/>
+				<QuestionList data={this.state.data} answerUrl={this.props.answerUrl}/>
 			</div>
 		);
 	}
@@ -34,9 +36,10 @@ var QuestionBox = React.createClass({
 
 var QuestionList = React.createClass({
 	render() {
+		var answerUrl = this.props.answerUrl;
 		var questionNodes = this.props.data.map(function (question) {
 			return (
-				<Question questionText={question.text} username={question.asker.username} answerList={question.options} avatarURL={question.asker.avatarUrl} isAnswered={false} />
+				<Question questionText={question.text} questionId = {question.id} username={question.asker.username} answerList={question.options} answerUrl={answerUrl} avatarURL={question.asker.avatarUrl} isAnswered={false}/>
 			);
 		});
 		return (
@@ -52,7 +55,9 @@ var Question = React.createClass({
 		return {isAnswered: this.props.isAnswered};
 	},
 	handleResponse(e) {
-		this.setState({isAnswered: true});
+		if (this.isMounted()) {
+			this.setState({isAnswered: true});
+		}
 	},
 	render() {
 		var answeredNode;
@@ -62,7 +67,7 @@ var Question = React.createClass({
 		return (
 			<div className="question">
 				<QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} score="240" />
-				<QuestionContent onResponse={this.handleResponse} questionText={this.props.questionText} answerList={this.props.answerList} />
+				<QuestionContent onResponse={this.handleResponse} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} />
 				{answeredNode}
 			</div>
 		);
@@ -88,17 +93,37 @@ var QuestionContent = React.createClass({
 		return (
 			<div className="questionContent">
 				<div className="questionText">{this.props.questionText}</div>
-				<AnswerList answerList={this.props.answerList} onResponse={this.props.onResponse}/>
+				<AnswerList answerList={this.props.answerList} questionId={this.props.questionId} answerUrl = {this.props.answerUrl} onResponse={this.props.onResponse}/>
 			</div>
 		);
 	}
 });
 
 var AnswerList = React.createClass({
-	render() {
-		var answerNodes = this.props.answerList.map(function (answer) {
+	handleClick: function(index) {
+		var clickedAnswer = this.props.answerList[index];
+		var JSONObj = { "user": 5, "question": this.props.questionId, "answer": index };
+		var JSONStr = JSON.stringify(JSONObj);
+		console.log('You clicked: ' + this.props.answerList[index]);
+		$.ajax({
+        url: this.props.answerUrl,
+        dataType: 'json',
+        type: 'POST',
+        data: JSONStr,
+        success: function(data) {
+          this.setState({data: data});
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(this.props.answerUrl, status, err.toString());
+        }.bind(this)
+      });
+	},
+	render: function() {
+		var answerNodes = this.props.answerList.map(function(answer, i) {
 			return (
-				<Answer onResponse={this.props.onResponse} answerText={answer}/>
+				<div className="answer" onClick={this.handleClick.bind(this, i)} key={i}>
+					<Answer onResponse={this.props.onResponse} answerText={answer} />
+				</div>
 			);
 		}.bind(this));
 		return (
@@ -117,7 +142,9 @@ var Answer = React.createClass({
 	},
 	handleResponse(e) {
 		this.props.onResponse();
-		this.setState({isAnswered: true});
+		if (this.isMounted()) {
+			this.setState({isAnswered: true});
+		}
 	},
 	render() {
 		var answer;
@@ -165,7 +192,7 @@ var App = React.createClass({
 		return (
 			<div className="body">
 				<div className="Title"><h1><i className="fa fa-tree"></i> Wildfire</h1></div>
-				<QuestionBox url="https://hidden-castle-6417.herokuapp.com/wildfire/question/" pollInterval={2000}/>
+				<QuestionBox url="https://hidden-castle-6417.herokuapp.com/wildfire/question/" answerUrl = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/" pollInterval={2000}/>
 			</div>
     	);
   	}
