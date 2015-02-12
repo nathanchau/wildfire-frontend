@@ -2,59 +2,6 @@
 
 var React = require('react');
 
-var data = [
-{
-	"id": 1,
-	"text": "What isn't love?",
-	"question_type": "MultipleChoice",
-	"answer_list": [
-		{
-			"answer_text": "Baby Don't Hurt Me"
-		},
-		{
-			"answer_text": "Don't Hurt Me"
-		},
-		{
-			"answer_text": "No More"
-		}
-	],
-	"date": "2015-02-07T02:37:09.176988Z",
-	"asker": {
-		"id": 2,
-		"username": "Alex",
-		"age": 19,
-		"gender": "M",
-		"region": "",
-		"join_date": "2015-02-03T06:38:24.792097Z"
-	}
-},
-{
-	"id": 1,
-	"text": "What is love?",
-	"question_type": "MultipleChoice",
-	"answer_list": [
-		{
-			"answer_text": "Baby Don't Hurt Me"
-		},
-		{
-			"answer_text": "Don't Hurt Me"
-		},
-		{
-			"answer_text": "No More"
-		}
-	],
-	"date": "2015-02-07T02:37:09.176988Z",
-	"asker": {
-		"id": 2,
-		"username": "Alex",
-		"age": 19,
-		"gender": "M",
-		"region": "",
-		"join_date": "2015-02-03T06:38:24.792097Z"
-	}
-}
-];
-
 var QuestionBox = React.createClass({
 	loadQuestionsFromServer: function() {
     $.ajax({
@@ -89,7 +36,7 @@ var QuestionList = React.createClass({
 	render() {
 		var questionNodes = this.props.data.map(function (question) {
 			return (
-				<Question questionText={question.created_at} username={question.owner.login} answerList={data[0].answer_list} isAnswered={false} />
+				<Question questionText={question.text} username={question.asker.username} answerList={question.options} isAnswered={false} />
 			);
 		});
 		return (
@@ -151,7 +98,7 @@ var AnswerList = React.createClass({
 	render() {
 		var answerNodes = this.props.answerList.map(function (answer) {
 			return (
-				<Answer onResponse={this.props.onResponse} answerText={answer.answer_text}/>
+				<Answer onResponse={this.props.onResponse} answerText={answer}/>
 			);
 		}.bind(this));
 		return (
@@ -218,7 +165,7 @@ var App = React.createClass({
 		return (
 			<div className="body">
 				<div className="Title"><h1><i className="fa fa-tree"></i> Wildfire</h1></div>
-				<QuestionBox url="https://api.github.com/users/octocat/gists" pollInterval={2000}/>
+				<QuestionBox url="https://hidden-castle-6417.herokuapp.com/wildfire/question/" pollInterval={2000}/>
 			</div>
     	);
   	}
