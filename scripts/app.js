@@ -36,7 +36,7 @@ var QuestionList = React.createClass({
 	render() {
 		var questionNodes = this.props.data.map(function (question) {
 			return (
-				<Question questionText={question.text} username={question.asker.username} answerList={question.options} isAnswered={false} />
+				<Question questionText={question.text} username={question.asker.username} answerList={question.options} avatarURL={question.asker.avatarUrl} isAnswered={false} />
 			);
 		});
 		return (
@@ -61,7 +61,7 @@ var Question = React.createClass({
 		}
 		return (
 			<div className="question">
-				<QuestionHeader avatarURL="https://igcdn-photos-h-a.akamaihd.net/hphotos-ak-xpa1/t51.2885-19/10369526_1488926638006751_1145515292_a.jpg" username={this.props.username} score="240" />
+				<QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} score="240" />
 				<QuestionContent onResponse={this.handleResponse} questionText={this.props.questionText} answerList={this.props.answerList} />
 				{answeredNode}
 			</div>
