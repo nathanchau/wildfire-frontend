@@ -56,10 +56,30 @@ var data = [
 ];
 
 var QuestionBox = React.createClass({
-	render() {
+	loadQuestionsFromServer: function() {
+    $.ajax({
+      url: this.props.url,
+      dataType: 'json',
+      success: function(data) {
+        this.setState({data: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+ 
+  getInitialState: function() {
+    return {data: []};
+  },
+  componentDidMount: function() {
+    this.loadQuestionsFromServer();
+    setInterval(this.loadQuestionsFromServer, this.props.pollInterval);
+  },
+	render: function() {
 		return (
 			<div className="questionBox">
-				<QuestionList data={this.props.data}/>
+				<QuestionList data={this.state.data}/>
 			</div>
 		);
 	}
@@ -69,7 +89,7 @@ var QuestionList = React.createClass({
 	render() {
 		var questionNodes = this.props.data.map(function (question) {
 			return (
-				<Question questionText={question.text} username={question.asker.username} answerList={question.answer_list} isAnswered={false} />
+				<Question questionText={question.created_at} username={question.owner.login} answerList={data[0].answer_list} isAnswered={false} />
 			);
 		});
 		return (
@@ -198,7 +218,7 @@ var App = React.createClass({
 		return (
 			<div className="body">
 				<div className="Title"><h1><i className="fa fa-tree"></i> Wildfire</h1></div>
-				<QuestionBox data={data}/>
+				<QuestionBox url="https://api.github.com/users/octocat/gists" pollInterval={2000}/>
 			</div>
     	);
   	}
