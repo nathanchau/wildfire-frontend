@@ -227,46 +227,48 @@ var QuestionCreator = React.createClass({
 var QuestionCreatorContent = React.createClass({
 	handleSubmit(e) {
 		e.preventDefault();
-		this.props.onSubmit();
-		this.setState({isValidated: false});
+		if (this.state.isValidated) {
+			this.props.onSubmit();
+			this.setState({isValidated: false});
 
-		// TODO: POST to Server
-		var options = [this.refs.answer1.getDOMNode().value];
-		if (this.refs.answer2.getDOMNode().value != '') {
-			options.push(this.refs.answer2.getDOMNode().value);
-		} 
-		if (this.refs.answer3.getDOMNode().value != '') {
-			options.push(this.refs.answer3.getDOMNode().value);
-		} 
-		if (this.refs.answer4.getDOMNode().value != '') {
-			options.push(this.refs.answer4.getDOMNode().value);
-		} 
-		if (this.refs.answer5.getDOMNode().value != '') {
-			options.push(this.refs.answer5.getDOMNode().value);
+			// TODO: POST to Server
+			var options = [this.refs.answer1.getDOMNode().value];
+			if (this.refs.answer2.getDOMNode().value != '') {
+				options.push(this.refs.answer2.getDOMNode().value);
+			} 
+			if (this.refs.answer3.getDOMNode().value != '') {
+				options.push(this.refs.answer3.getDOMNode().value);
+			} 
+			if (this.refs.answer4.getDOMNode().value != '') {
+				options.push(this.refs.answer4.getDOMNode().value);
+			} 
+			if (this.refs.answer5.getDOMNode().value != '') {
+				options.push(this.refs.answer5.getDOMNode().value);
+			}
+
+			var JSONObj = { "asker": 5, "questionType": 'MC', "text": this.refs.question.getDOMNode().value, "options": options};
+			var JSONStr = JSON.stringify(JSONObj);
+
+			$.ajax({
+	        	url: "https://hidden-castle-6417.herokuapp.com/wildfire/question/create/",
+	        	dataType: 'json',
+	        	type: 'POST',
+	        	data: JSONStr,
+	        	success: function(data) {
+	          		//this.setState({data: data});
+	        	}.bind(this),
+	        	error: function(xhr, status, err) {
+	        	  	console.error(status, err.toString());
+	        	}.bind(this)
+	      	});
+
+	    	this.refs.question.getDOMNode().value = '';
+	    	this.refs.answer1.getDOMNode().value = '';
+	    	this.refs.answer2.getDOMNode().value = '';
+	    	this.refs.answer3.getDOMNode().value = '';
+	    	this.refs.answer4.getDOMNode().value = '';
+	    	this.refs.answer5.getDOMNode().value = '';
 		}
-
-		var JSONObj = { "asker": 5, "questionType": 'MC', "text": this.refs.question.getDOMNode().value, "options": options};
-		var JSONStr = JSON.stringify(JSONObj);
-
-		$.ajax({
-        	url: "https://hidden-castle-6417.herokuapp.com/wildfire/question/create/",
-        	dataType: 'json',
-        	type: 'POST',
-        	data: JSONStr,
-        	success: function(data) {
-          		//this.setState({data: data});
-        	}.bind(this),
-        	error: function(xhr, status, err) {
-        	  	console.error(status, err.toString());
-        	}.bind(this)
-      	});
-
-    	this.refs.question.getDOMNode().value = '';
-    	this.refs.answer1.getDOMNode().value = '';
-    	this.refs.answer2.getDOMNode().value = '';
-    	this.refs.answer3.getDOMNode().value = '';
-    	this.refs.answer4.getDOMNode().value = '';
-    	this.refs.answer5.getDOMNode().value = '';
 	},
 	getInitialState() {
 		return {isValidated:false};
