@@ -28,6 +28,7 @@ var QuestionBox = React.createClass({
 	render: function() {
 		return (
 			<div className="questionBox">
+				<QuestionCreatorContainer />
 				<QuestionList data={this.state.data} answerUrl={this.props.answerUrl}/>
 			</div>
 		);
@@ -76,13 +77,18 @@ var Question = React.createClass({
 
 var QuestionHeader = React.createClass({
 	render() {
+		var classString = 'questionHeader';
+		if (this.props.isCondensed) {
+			classString += ' condensed';
+		}
 		return (
-			<div className="questionHeader">
+			<div className={classString}>
 				<img src={this.props.avatarURL} className="questionAvatar" />
 				<div className="questionUsername">{this.props.username}</div>
 				<div className="questionCategory">asked about Philosophy</div>
 				<div className="questionScore">{this.props.score}</div>
 				<div className="questionScoreAccessory">answered</div>
+				<div className="questionAsk">Ask a question...</div>
 			</div>
 		);
 	}
@@ -122,7 +128,7 @@ var AnswerList = React.createClass({
 		var answerNodes = this.props.answerList.map(function(answer, i) {
 			return (
 				<div className="answer" onClick={this.handleClick.bind(this, i)} key={i}>
-					<Answer onResponse={this.props.onResponse} answerText={answer} />
+					<Answer onResponse={this.props.onResponse} answerText={answer} index={i}/>
 				</div>
 			);
 		}.bind(this));
@@ -137,10 +143,7 @@ var AnswerList = React.createClass({
 });
 
 var Answer = React.createClass({
-	getInitialState() {
-		return {isAnswered: false};
-	},
-	handleResponse(e) {
+	handleResponse(index) {
 		this.props.onResponse();
 		if (this.isMounted()) {
 			this.setState({isAnswered: true});
@@ -148,10 +151,10 @@ var Answer = React.createClass({
 	},
 	render() {
 		var answer;
-		if (this.state.isAnswered) {
-			answer = <li><div className="answered"><p onClick={this.handleResponse}>{this.props.answerText}</p></div></li>;
+		if (this.props.isAnswered) {
+			answer = <li><div className="answered"><p onClick={this.handleResponse.bind(this,this.props.index)}>{this.props.answerText}</p></div></li>;
 		} else {
-			answer = <li><p onClick={this.handleResponse}>{this.props.answerText}</p></li>;
+			answer = <li><p onClick={this.handleResponse.bind(this,this.props.index)}>{this.props.answerText}</p></li>;
 		}
 		return (
 			<div>{answer}</div>
@@ -187,12 +190,140 @@ var AnalysisCard = React.createClass({
 	}
 });
 
+// Question Creator
+var QuestionCreatorContainer = React.createClass({
+	render() {
+		return (
+			<div className="questionCreatorContainer">
+				<QuestionCreator />
+			</div>
+		);
+	}
+});
+
+var QuestionCreator = React.createClass({
+	getInitialState() {
+		return {isCondensed: true};
+	}, 
+	handleClick(e) {
+		this.setState({isCondensed: false});
+	},
+	handleSubmit(e) {
+		this.setState({isCondensed: true});
+	},
+	render() {
+		var creatorNode;
+		if (this.state.isCondensed) {
+			creatorNode = <div className="questionCreator"><QuestionHeader avatarURL="https://igcdn-photos-f-a.akamaihd.net/hphotos-ak-xfa1/t51.2885-19/10895024_315160272028181_1781198120_a.jpg" username="Nathan" score="0" isCondensed={true}/><QuestionCreatorContent isCondensed={true} onSubmit={this.handleSubmit}/></div>;
+		} else {
+			creatorNode = <div className="questionCreator"><QuestionHeader avatarURL="https://igcdn-photos-f-a.akamaihd.net/hphotos-ak-xfa1/t51.2885-19/10895024_315160272028181_1781198120_a.jpg" username="Nathan" score="0" isCondensed={false}/><QuestionCreatorContent isCondensed={false} onSubmit={this.handleSubmit}/></div>;
+		}
+		return (
+			<div onClick={this.handleClick}>{creatorNode}</div>
+		);
+	}
+});
+
+var QuestionCreatorContent = React.createClass({
+	handleSubmit(e) {
+		e.preventDefault();
+		this.props.onSubmit();
+		this.setState({isValidated: false});
+
+		// TODO: POST to Server
+		var options = [this.refs.answer1.getDOMNode().value];
+		if (this.refs.answer2.getDOMNode().value != '') {
+			options.push(this.refs.answer2.getDOMNode().value);
+		} 
+		if (this.refs.answer3.getDOMNode().value != '') {
+			options.push(this.refs.answer3.getDOMNode().value);
+		} 
+		if (this.refs.answer4.getDOMNode().value != '') {
+			options.push(this.refs.answer4.getDOMNode().value);
+		} 
+		if (this.refs.answer5.getDOMNode().value != '') {
+			options.push(this.refs.answer5.getDOMNode().value);
+		}
+
+		var JSONObj = { "asker": 5, "questionType": 'MC', "text": this.refs.question.getDOMNode().value, "options": options};
+		var JSONStr = JSON.stringify(JSONObj);
+
+		$.ajax({
+        	url: "https://hidden-castle-6417.herokuapp.com/wildfire/question/create/",
+        	dataType: 'json',
+        	type: 'POST',
+        	data: JSONStr,
+        	success: function(data) {
+          		//this.setState({data: data});
+        	}.bind(this),
+        	error: function(xhr, status, err) {
+        	  	console.error(status, err.toString());
+        	}.bind(this)
+      	});
+
+    	this.refs.question.getDOMNode().value = '';
+    	this.refs.answer1.getDOMNode().value = '';
+    	this.refs.answer2.getDOMNode().value = '';
+    	this.refs.answer3.getDOMNode().value = '';
+    	this.refs.answer4.getDOMNode().value = '';
+    	this.refs.answer5.getDOMNode().value = '';
+	},
+	getInitialState() {
+		return {isValidated:false};
+	},
+	handleInput(e) {
+		if (this.refs.question.getDOMNode().value != '' && this.refs.answer1.getDOMNode().value != '') {
+			this.setState({isValidated: true});
+		} else {
+			this.setState({isValidated: false});
+		}
+	},
+	render() {
+		var classString = 'questionCreatorContent';
+		if (this.props.isCondensed) {
+			classString += ' condensed';
+		} else if (this.state.isValidated) {
+			classString += ' validated';
+		}
+		return (
+			<div className={classString}>
+				<form className="questionCreatorForm" onSubmit={this.handleSubmit} onInput={this.handleInput}>
+				<textarea className="expanding questionCreatorText" name="questionText" placeholder="Ask a question..." rows="1" ref="question"></textarea>
+
+				<div className="questionCreatorAnswerList" id="questionCreatorAnswerList">
+					<ol type="a">
+						<div className="questionCreatorAnswerListElement">
+							<li><textarea className="expanding questionCreatorAnswer" name="answer" placeholder="Add an answer" rows="1" onChange={this.handleChange} ref="answer1"></textarea></li>
+						</div>
+						<div className="questionCreatorAnswerListElement">
+							<li><textarea className="expanding questionCreatorAnswer" name="answer" placeholder="Add another answer" rows="1" onChange={this.handleChange} ref="answer2"></textarea></li>
+						</div>
+						<div className="questionCreatorAnswerListElement">
+							<li><textarea className="expanding questionCreatorAnswer" name="answer" placeholder="Maybe another answer" rows="1" onChange={this.handleChange} ref="answer3"></textarea></li>
+						</div>
+						<div className="questionCreatorAnswerListElement">
+							<li><textarea className="expanding questionCreatorAnswer" name="answer" placeholder="Yet another answer" rows="1" onChange={this.handleChange} ref="answer4"></textarea></li>
+						</div>
+						<div className="questionCreatorAnswerListElement">
+							<li><textarea className="expanding questionCreatorAnswer" name="answer" placeholder="Last answer" rows="1" onChange={this.handleChange} ref="answer5"></textarea></li>
+						</div>
+					</ol>
+				</div>
+
+				<button className="questionCreatorButton" type="submit" value="Ask this question">Ask this question <i className="fa fa-paper-plane-o"></i></button>
+
+				</form>
+			</div>
+		);
+	}
+});
+
 var App = React.createClass({
 	render() {
 		return (
 			<div className="body">
 				<div className="Title"><h1><i className="fa fa-tree"></i> Wildfire</h1></div>
-				<QuestionBox url="https://hidden-castle-6417.herokuapp.com/wildfire/question/" answerUrl = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/" pollInterval={2000}/>
+				<QuestionBox url="https://hidden-castle-6417.herokuapp.com/wildfire/question/" answerUrl = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/" pollInterval={2000000}/>
 			</div>
     	);
   	}

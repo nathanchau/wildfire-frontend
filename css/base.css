@@ -14,12 +14,16 @@ body {
 }
 
 /* Question ----------------------------------------*/
-.questionList {
+.questionList, .questionCreatorContainer{
 	max-width: 400px;
 	margin: 0 auto;
 }
 
-.question {
+.questionCreatorContainer {
+	margin-bottom: 15px;
+}
+
+.question, .questionCreator{
 	padding: 8px 8px;
 	background-color: white;
 	border-radius: 5px;
@@ -34,6 +38,11 @@ body {
 	border-bottom: thin solid rgb(224,224,224);
 	position: relative;
 }
+.questionHeader.condensed {
+	border-bottom: none;
+	padding-bottom: 0px;
+	cursor: pointer;
+}
 
 .questionAvatar {
 	width: 34px;
@@ -47,12 +56,15 @@ body {
 	top: 0px;
 	left: 40px;
 	font-weight: 500;
+	display: inline;
 }
+
 .questionCategory {
 	position: absolute;
 	top: 18px;
 	left: 40px;
 	color: rgb(151,151,151);
+	display: inline;
 }
 
 .questionScore {
@@ -60,6 +72,7 @@ body {
 	top: 0px;
 	right: 0px;
 	font-weight: 500;
+	display: inline;
 }
 
 .questionScoreAccessory {
@@ -67,43 +80,124 @@ body {
 	top: 18px;
 	right: 0px;
 	color: rgb(151,151,151);
+	display: inline;
+}
+
+.questionAsk {
+	display: none;
+	position: absolute;
+	top: 6px;
+	left: 45px;
+	font-size: 17px;
+	letter-spacing: -0.2px;
+	color: rgb(165,165,165);
+}
+
+.questionHeader.condensed .questionUsername, .questionHeader.condensed .questionCategory, .questionHeader.condensed .questionScore,.questionHeader.condensed .questionScoreAccessory {
+	display: none;
+}
+
+.questionHeader.condensed .questionAsk {
+	display: inline;
 }
 
 /* Question Content -----------------------------------*/
-.questionContent {
+.questionContent, .questionCreatorContent {
 	position: relative;
 	margin-top: 10px;
 	letter-spacing: -0.2px;
+	overflow: hidden;
+	height: auto;
 }
 
-.questionText {
+.questionCreatorContent.condensed {
+	height: 0px;
+	margin-top: 0px;
+}
+
+.questionText, .questionCreatorText {
 	margin-bottom: 10px;
 	font-size: 17px;
+	width: 100%;
+}	
+
+.questionCreatorText {
+	color: rgb(60,60,60);
+	letter-spacing: -0.2px;
+	border: none;
 }
 
-.answerList {
+.questionCreatorText:focus {
+	outline: 0;
+}
+
+.answerList, .questionCreatorAnswerList {
 	margin-top: -5px;
 	margin-left: 20px;
 	margin-bottom: 10px;
 	font-size: 14px;
 }
 
-.answerList li {
+.answerList li, .questionCreatorAnswerList li {
 	margin-left: -20px; /* Makes answers line up with header */
 	margin-bottom: 0px;
 	color: rgb(100,100,100); /* Not sure */
 }
 
-.answerList p {
+.answerList p, .questionCreatorAnswerList p {
 	margin-top: 8px;
 	margin-bottom: 0px;
 	text-decoration: none;
 	cursor: pointer;
 }
 
+.questionCreatorForm {
+	margin-bottom: 0px;
+}
+
+.questionCreatorAnswerListElement {
+	margin-top: 5px;
+}
+
+.questionCreatorAnswer {
+	font-size: 14px;
+	color: rgb(100,100,100);
+	border: none;
+	outline: 0;
+}
+
 .answered p {
 	color: rgb(60,60,60);
 	font-weight: 500;
+}
+
+.questionCreatorContent button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+	font-size: 17px;
+	font-family: "Helvetica Neue";
+	color: white;
+	border-width: 0;
+	/*background-color: rgb(46, 204, 113);*/
+	background: linear-gradient(rgb(56,214,123), rgb(46,204,113));
+	border-radius: 4px;
+	box-shadow: none;
+	padding: 10px 20px;
+	width: 100%;
+	opacity: 0.4;
+}
+
+.questionCreatorContent.validated button {
+	opacity: 1.0 !important;
+	cursor: pointer;
+}
+
+.questionCreatorContent button:focus {
+	outline: none;
+}
+
+.questionCreatorContent button:hover {
 }
 
 /* If Answered ----------------------------------------*/
