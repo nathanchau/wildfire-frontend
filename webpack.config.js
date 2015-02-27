@@ -17,11 +17,13 @@ module.exports = {
     new webpack.NoErrorsPlugin()
   ],
   resolve: {
-    extensions: ['', '.js']
+    extensions: ['', '.js', '.css']
   },
   module: {
     loaders: [
       { test: /\.js$/, loaders: ['react-hot', 'jsx?harmony'], exclude: /node_modules/ },
+      { test: /\.css$/, loader: 'style-loader!css-loader' },
     ]
-  }
+  },
+  amd: { jQuery:true }
 };

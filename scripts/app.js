@@ -1,4 +1,7 @@
 'use strict';
+require('./base.css');
+require('./expanding');
+require('jquery');
 
 var React = require('react');
 
@@ -325,7 +328,7 @@ var App = React.createClass({
 		return (
 			<div className="body">
 				<div className="Title"><h1><i className="fa fa-tree"></i> Wildfire</h1></div>
-				<QuestionBox url="https://hidden-castle-6417.herokuapp.com/wildfire/question/" answerUrl = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/" pollInterval={2000000}/>
+				<QuestionBox url="https://hidden-castle-6417.herokuapp.com/wildfire/question/" answerUrl = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/" pollInterval={2000}/>
 			</div>
     	);
   	}
