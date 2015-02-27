@@ -2,6 +2,7 @@ body {
 	background-color: rgb(244,244,244);
 	color: rgb(60,60,60);
 	font-family: "Helvetica Neue", Arial, sans-serif;
+	margin: 10px;
 }
 
 .font-weight-medium {
