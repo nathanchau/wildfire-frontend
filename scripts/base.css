@@ -12,6 +12,7 @@ body {
 .title {
 	font-family: "Varela Round";
 	letter-spacing: -0.2px;
+	text-align: center;
 }
 
 /* Question ----------------------------------------*/
@@ -28,7 +29,6 @@ body {
 	padding: 8px 8px;
 	background-color: white;
 	border-radius: 5px;
-	box-shadow: 1px 1px 5px rgb(190,190,190);
 	margin-bottom: 10px;
 }
 

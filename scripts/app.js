@@ -357,7 +357,7 @@ var App = React.createClass({
 	render() {
 		return (
 			<div className="body">
-				<div className="Title"><h1><i className="fa fa-tree"></i> Wildfire</h1></div>
+				<div className="Title"><h1><i className="fa fa-tree"></i></h1></div>
 				<QuestionBox url="https://hidden-castle-6417.herokuapp.com/wildfire/question/" answerUrl = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/" pollInterval={200000}/>
 			</div>
     	);
