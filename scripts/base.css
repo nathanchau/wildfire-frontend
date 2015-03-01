@@ -16,16 +16,22 @@ body {
 }
 
 /* Question ----------------------------------------*/
-.questionList, .questionCreatorContainer{
+.questionList, .questionCreatorContainer, .logInContainer {
 	max-width: 400px;
 	margin: 0 auto;
 }
 
-.questionCreatorContainer {
+.questionCreatorContainer, .logInContainer {
 	margin-bottom: 15px;
 }
 
-.question, .questionCreator{
+.questionCreatorContainer.condensed, .logInContainer.condensed {
+	height: 0px;
+	margin: 0px;
+	overflow: hidden;
+}
+
+.question, .questionCreator, .logInCreator {
 	padding: 8px 8px;
 	background-color: white;
 	border-radius: 5px;
@@ -48,7 +54,7 @@ body {
 .questionAvatar {
 	width: 34px;
 	height: 34px;
-	border-radius: 17px;
+	border-radius: 50%;
 	background-color: rgb(78,106,164);
 }
 
@@ -103,7 +109,7 @@ body {
 }
 
 /* Question Content -----------------------------------*/
-.questionContent, .questionCreatorContent {
+.questionContent, .questionCreatorContent, .logInCreatorContent {
 	position: relative;
 	margin-top: 10px;
 	letter-spacing: -0.2px;
@@ -111,24 +117,30 @@ body {
 	height: auto;
 }
 
-.questionCreatorContent.condensed {
+.questionCreatorContent.condensed, .logInCreatorContent.condensed {
 	height: 0px;
 	margin-top: 0px;
+	border-top: none;
 }
 
-.questionText, .questionCreatorText {
+.questionText, .questionCreatorText, .logInCreatorText {
 	margin-bottom: 10px;
 	font-size: 17px;
 	width: 100%;
 }	
 
-.questionCreatorText {
+.questionCreatorText, .logInCreatorText {
 	color: rgb(60,60,60);
 	letter-spacing: -0.2px;
 	border: none;
 }
 
-.questionCreatorText:focus {
+.logInCreatorText {
+	padding-bottom: 6px;
+	font-family: "Helvetica Neue", FontAwesome, sans-serif;
+}
+
+.questionCreatorText:focus, .logInCreatorText:focus {
 	outline: 0;
 }
 
@@ -152,7 +164,7 @@ body {
 	cursor: pointer;
 }
 
-.questionCreatorForm {
+.questionCreatorForm, .logInCreatorForm {
 	margin-bottom: 0px;
 }
 
@@ -172,7 +184,7 @@ body {
 	font-weight: 500;
 }
 
-.questionCreatorContent button {
+.questionCreatorContent button, .logInCreatorContent button {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
@@ -189,16 +201,20 @@ body {
 	opacity: 0.4;
 }
 
-.questionCreatorContent.validated button {
+.logInCreatorContent button {
+	margin-top: 6px;
+}
+
+.questionCreatorContent.validated button, .logInCreatorContent.validated button {
 	opacity: 1.0 !important;
 	cursor: pointer;
 }
 
-.questionCreatorContent button:focus {
+.questionCreatorContent button:focus, .logInCreatorContent button:focus {
 	outline: none;
 }
 
-.questionCreatorContent button:hover {
+.questionCreatorContent button:hover.questionCreatorContent button:hover {
 }
 
 /* If Answered ----------------------------------------*/

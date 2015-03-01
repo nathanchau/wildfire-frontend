@@ -29,6 +29,12 @@ var QuestionBox = React.createClass({
     		this.setState({data: newData});
     	}
   	},
+  	handleLogIn(data) {
+  		console.log('(In QuestionBox) New User Authenticated ' + data.username);
+  		if (this.isMounted()) {
+    		this.setState({currentUser: data});
+    	}
+  	},
   	handleResponse(data) {
 		console.log('(In QuestionBox) Answer: ' + data.answer);
 		// Get current data, add new answer, set state
@@ -45,17 +51,28 @@ var QuestionBox = React.createClass({
     	}
   	},
   	getInitialState: function() {
-    	return {data: []};
+    	return {data: [], currentUser: null};
   	},
   	componentDidMount: function() {
     	this.loadQuestionsFromServer();
     	setInterval(this.loadQuestionsFromServer, this.props.pollInterval);
   	},
 	render: function() {
+		var headerNode;
+		var logInHidden;
+		var askHidden;
+		if (!this.state.currentUser) {
+			logInHidden = false;
+			askHidden = true;
+		} else {
+			logInHidden = true;
+			askHidden = false;
+		}
 		return (
 			<div className="questionBox">
-				<QuestionCreatorContainer onQuestionCreation={this.handleQuestionCreation}/>
-				<QuestionList data={this.state.data} answerUrl={this.props.answerUrl} onResponse={this.handleResponse}/>
+				<LogInContainer isHidden={logInHidden} onLogIn={this.handleLogIn}/>
+				<QuestionCreatorContainer isHidden={askHidden} onQuestionCreation={this.handleQuestionCreation} currentUser={this.state.currentUser} />
+				<QuestionList data={this.state.data} answerUrl={this.props.answerUrl} onResponse={this.handleResponse} currentUser={this.state.currentUser}/>
 			</div>
 		);
 	}
@@ -66,7 +83,7 @@ var QuestionList = React.createClass({
 		var answerUrl = this.props.answerUrl;
 		var questionNodes = this.props.data.map(function (question) {
 			return (
-				<Question questionText={question.text} questionId = {question.id} username={question.asker.username} firstName={question.asker.first_name} answerList={question.options} answerUrl={answerUrl} avatarURL={question.asker.avatarUrl} isAnswered={question.isAnswered} answers={question.answers} onResponse={this.props.onResponse}/>
+				<Question questionText={question.text} questionId = {question.id} username={question.asker.username} firstName={question.asker.first_name} answerList={question.options} answerUrl={answerUrl} avatarURL={question.asker.avatarUrl} isAnswered={question.isAnswered} answers={question.answers} onResponse={this.props.onResponse} currentUser={this.props.currentUser}/>
 			);
 		}.bind(this));
 		return (
@@ -85,8 +102,8 @@ var Question = React.createClass({
 		}
 		return (
 			<div className="question">
-				<QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score="240" />
-				<QuestionContent onResponse={this.props.onResponse} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} isAnswered={this.props.isAnswered} answers={this.props.answers}/>
+				<QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} />
+				<QuestionContent onResponse={this.props.onResponse} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} isAnswered={this.props.isAnswered} answers={this.props.answers} currentUser={this.props.currentUser}/>
 				{answeredNode}
 			</div>
 		);
@@ -99,14 +116,20 @@ var QuestionHeader = React.createClass({
 		if (this.props.isCondensed) {
 			classString += ' condensed';
 		}
+		var avatarURL;
+		if (this.props.avatarURL) {
+			avatarURL = this.props.avatarURL;
+		} else {
+			avatarURL = "";
+		}
 		return (
 			<div className={classString}>
-				<img src={this.props.avatarURL} className="questionAvatar" />
+				<img src={avatarURL} className="questionAvatar" />
 				<div className="questionUsername">{this.props.firstName}</div>
-				<div className="questionCategory">asked about Philosophy</div>
+				<div className="questionCategory">asked about Technology</div>
 				<div className="questionScore">{this.props.score}</div>
 				<div className="questionScoreAccessory">answered</div>
-				<div className="questionAsk">Ask a question...</div>
+				<div className="questionAsk">{this.props.condensedText}</div>
 			</div>
 		);
 	}
@@ -117,7 +140,7 @@ var QuestionContent = React.createClass({
 		return (
 			<div className="questionContent">
 				<div className="questionText">{this.props.questionText}</div>
-				<AnswerList answerList={this.props.answerList} questionId={this.props.questionId} answerUrl = {this.props.answerUrl} onResponse={this.props.onResponse} isAnswered={this.props.isAnswered} answers={this.props.answers}/>
+				<AnswerList answerList={this.props.answerList} questionId={this.props.questionId} answerUrl = {this.props.answerUrl} onResponse={this.props.onResponse} isAnswered={this.props.isAnswered} answers={this.props.answers} currentUser={this.props.currentUser}/>
 			</div>
 		);
 	}
@@ -127,7 +150,7 @@ var AnswerList = React.createClass({
 	handleClick: function(index) {
 		//this.props.onResponse();
 		var clickedAnswer = this.props.answerList[index];
-		var JSONObj = { "user": 5, "question": this.props.questionId, "answer": index };
+		var JSONObj = { "user": this.props.currentUser.id, "question": this.props.questionId, "answer": index };
 		var JSONStr = JSON.stringify(JSONObj);
 		console.log('You clicked: ' + this.props.answerList[index]);
 		$.ajax({
@@ -150,8 +173,7 @@ var AnswerList = React.createClass({
 			// Find current user's answer object
 			var answerMap = this.props.answers.map(function(answer, i) {
 				// Check for each if userid matches current
-				// TODO: Change to match authenticated user
-				if (answer.user == 5) {
+				if (this.props.currentUser && answer.user == this.props.currentUser.id) {
 					answerIndex = answer.answer;
 					return answer.answer;
 				}
@@ -226,9 +248,22 @@ var AnalysisCard = React.createClass({
 // Question Creator
 var QuestionCreatorContainer = React.createClass({
 	render() {
+		var className = "questionCreatorContainer"
+		if (this.props.isHidden) {
+			className = className + " condensed"
+		}
+		var avatarURL;
+		var username;
+		var firstName;
+		var currentUser;
+		if (currentUser = this.props.currentUser) {
+			avatarURL = currentUser.avatarUrl;
+			username = currentUser.username;
+			firstName = currentUser.first_name;
+		};
 		return (
-			<div className="questionCreatorContainer">
-				<QuestionCreator onQuestionCreation={this.props.onQuestionCreation}/>
+			<div className={className}>
+				<QuestionCreator onQuestionCreation={this.props.onQuestionCreation} avatarURL={avatarURL} username={username} firstName={firstName} currentUser={this.props.currentUser}/>
 			</div>
 		);
 	}
@@ -240,6 +275,10 @@ var QuestionCreator = React.createClass({
 	}, 
 	handleClick(e) {
 		this.setState({isCondensed: false});
+		if (this.state.isCondensed) {
+			document.questionCreatorForm.questionText.focus();
+		};
+		console.log(this.props.avatarURL);
 	},
 	handleSubmit(e) {
 		this.setState({isCondensed: true});
@@ -247,9 +286,9 @@ var QuestionCreator = React.createClass({
 	render() {
 		var creatorNode;
 		if (this.state.isCondensed) {
-			creatorNode = <div className="questionCreator"><QuestionHeader avatarURL="https://igcdn-photos-f-a.akamaihd.net/hphotos-ak-xfa1/t51.2885-19/10895024_315160272028181_1781198120_a.jpg" username="Nathan" firstName="Nathan" score="0" isCondensed={true}/><QuestionCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation}/></div>;
+			creatorNode = <div className="questionCreator"><QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score="0" isCondensed={true} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
 		} else {
-			creatorNode = <div className="questionCreator"><QuestionHeader avatarURL="https://igcdn-photos-f-a.akamaihd.net/hphotos-ak-xfa1/t51.2885-19/10895024_315160272028181_1781198120_a.jpg" username="Nathan" firstName="Nathan" score="0" isCondensed={false}/><QuestionCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation}/></div>;
+			creatorNode = <div className="questionCreator"><QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score="0" isCondensed={false} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
 		}
 		return (
 			<div onClick={this.handleClick}>{creatorNode}</div>
@@ -278,7 +317,7 @@ var QuestionCreatorContent = React.createClass({
 				options.push(this.refs.answer5.getDOMNode().value);
 			}
 
-			var JSONObj = { "asker": 5, "questionType": 'MC', "text": this.refs.question.getDOMNode().value, "options": options};
+			var JSONObj = { "asker": this.props.currentUser.id, "questionType": 'MC', "text": this.refs.question.getDOMNode().value, "options": options};
 			var JSONStr = JSON.stringify(JSONObj);
 
 			$.ajax({
@@ -322,7 +361,7 @@ var QuestionCreatorContent = React.createClass({
 		}
 		return (
 			<div className={classString}>
-				<form className="questionCreatorForm" onSubmit={this.handleSubmit} onInput={this.handleInput}>
+				<form className="questionCreatorForm" name="questionCreatorForm" onSubmit={this.handleSubmit} onInput={this.handleInput}>
 				<textarea className="expanding questionCreatorText" name="questionText" placeholder="Ask a question..." rows="1" ref="question"></textarea>
 
 				<div className="questionCreatorAnswerList" id="questionCreatorAnswerList">
@@ -346,6 +385,108 @@ var QuestionCreatorContent = React.createClass({
 				</div>
 
 				<button className="questionCreatorButton" type="submit" value="Ask this question">Ask this question <i className="fa fa-paper-plane-o"></i></button>
+
+				</form>
+			</div>
+		);
+	}
+});
+
+// Log in
+var LogInContainer = React.createClass({
+	render() {
+		var className = "logInContainer";
+		if (this.props.isHidden) {
+			className = className + " condensed"
+		}
+		return (
+			<div className={className}>
+				<LogInCreator onLogIn={this.props.onLogIn}/>
+			</div>
+		);
+	}
+});
+
+var LogInCreator = React.createClass({
+	getInitialState() {
+		return {isCondensed: true};
+	}, 
+	handleClick(e) {
+		this.setState({isCondensed: false});
+		console.log('(In LogInCreator) clicked');
+		if (this.state.isCondensed) {
+			document.logInForm.logInUsername.focus();			
+		};
+	},
+	handleSubmit(e) {
+		this.setState({isCondensed: true});
+	},
+	render() {
+		var creatorNode;
+		if (this.state.isCondensed) {
+			creatorNode = <div className="logInCreator"><QuestionHeader avatarURL="" username="Nathan" firstName="Nathan" score="0" isCondensed={true} condensedText="Click to Log In"/><LogInCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onLogIn={this.props.onLogIn}/></div>;
+		} else {
+			creatorNode = <div className="logInCreator"><QuestionHeader avatarURL="" username="Nathan" firstName="Nathan" score="0" isCondensed={true} condensedText="Click to Log In"/><LogInCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onLogIn={this.props.onLogIn}/></div>;
+		}
+		return (
+			<div onClick={this.handleClick}>{creatorNode}</div>
+		);
+	}
+});
+
+var LogInCreatorContent = React.createClass({
+	handleSubmit(e) {
+		e.preventDefault();
+		if (this.state.isValidated) {
+			this.props.onSubmit();
+			this.setState({isValidated: false});
+
+			var username = this.refs.username.getDOMNode().value;
+			var password = this.refs.password.getDOMNode().value;
+			var reqData = "username=" + username + "&password=" + password;
+
+			$.ajax({
+	        	url: "https://hidden-castle-6417.herokuapp.com/wildfire/login/",
+	        	dataType: 'HTML',
+	        	type: 'POST',
+	        	data: reqData,
+	        	success: function(data) {
+	          		//this.setState({data: data});
+	          		this.props.onLogIn(JSON.parse(data));
+	        	}.bind(this),
+	        	error: function(xhr, status, err) {
+	        	  	console.error(status, err.toString());
+	        	}.bind(this)
+	      	});
+
+	    	this.refs.username.getDOMNode().value = '';
+	    	this.refs.password.getDOMNode().value = '';
+		}
+	},
+	getInitialState() {
+		return {isValidated:false};
+	},
+	handleInput(e) {
+		if (this.refs.username.getDOMNode().value != '' && this.refs.password.getDOMNode().value != '') {
+			this.setState({isValidated: true});
+		} else {
+			this.setState({isValidated: false});
+		}
+	},
+	render() {
+		var classString = 'logInCreatorContent';
+		if (this.props.isCondensed) {
+			classString += ' condensed';
+		} else if (this.state.isValidated) {
+			classString += ' validated';
+		}
+		return (
+			<div className={classString}>
+				<form className="logInCreatorForm" name="logInForm" onSubmit={this.handleSubmit} onInput={this.handleInput}>
+				<textarea className="expanding logInCreatorText" name="logInUsername" placeholder="Username &#xF0E7;" rows="1" ref="username"></textarea>
+				<textarea className="expanding logInCreatorText" name="logInPassword" placeholder="Password &#xF21B;" rows="1" ref="password"></textarea>
+
+				<button className="logInCreatorButton" type="submit" value="Log In">Log In <i className="fa fa-tree"></i></button>
 
 				</form>
 			</div>
