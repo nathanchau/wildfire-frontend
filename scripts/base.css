@@ -137,7 +137,7 @@ body {
 
 .logInCreatorText {
 	padding-bottom: 6px;
-	font-family: "Helvetica Neue", FontAwesome, sans-serif;
+	font-family: FontAwesome, "Helvetica Neue", sans-serif;
 }
 
 .questionCreatorText:focus, .logInCreatorText:focus {
