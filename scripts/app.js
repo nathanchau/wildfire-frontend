@@ -4,6 +4,15 @@ require('./expanding');
 require('jquery');
 
 var React = require('react');
+var BarChart = require('./BarChart');
+var PieChart = require('./PieChart');
+
+var sampleStats = [5, 10, 20, 65, 0];//, 10, 15, 10, 20, 50, 75, 20, 10, 5];
+var piedata = [ {name: "one", value: 10375},
+      {name: "two", value:  7615},
+      {name: "three", value:  832},
+      {name: "four", value:  516},
+      {name: "five", value:  491} ];
 
 var QuestionBox = React.createClass({
 	loadQuestionsFromServer: function() {
@@ -147,10 +156,18 @@ var QuestionContent = React.createClass({
 });
 
 var AnswerList = React.createClass({
+  getInitialState: function() {
+      return {
+          stats: [0, 0, 0, 0, 0],
+          piedata: piedata,
+          isAnswered: false
+      };
+    },
 	handleClick: function(index) {
-		//this.props.onResponse();
+		console.log("user clicked: " + index);
+
 		var clickedAnswer = this.props.answerList[index];
-		var JSONObj = { "user": this.props.currentUser.id, "question": this.props.questionId, "answer": index };
+		var JSONObj = { "user": 4, "question": this.props.questionId, "answer": index };
 		var JSONStr = JSON.stringify(JSONObj);
 		console.log('You clicked: ' + this.props.answerList[index]);
 		$.ajax({
@@ -165,10 +182,24 @@ var AnswerList = React.createClass({
           console.error(this.props.answerUrl, status, err.toString());
         }.bind(this)
       });
+    $.ajax({
+        url: "https://hidden-castle-6417.herokuapp.com/wildfire/stats/" + this.props.questionId + "/",
+        dataType: 'json',
+        success: function(data) {
+          if (this.isMounted()) {
+            statsArray = [data.quick.option1, data.quick.option2, data.quick.option3, data.quick.option4, data.quick.option5];
+            this.setState({isAnswered: true, stats: statsArray});
+            console.log(data.quick);
+          }
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(url, status, err.toString());
+          }.bind(this)
+      });
 	},
 	render: function() {
 		// If Answered, then need to highlight one of the options as answered
-		var answerIndex;
+		/*var answerIndex;
 		if (this.props.isAnswered) {
 			// Find current user's answer object
 			var answerMap = this.props.answers.map(function(answer, i) {
@@ -189,12 +220,14 @@ var AnswerList = React.createClass({
 					<Answer onResponse={this.handleClick.bind(this, i)} answerText={answer} index={i} isAnswered={isAnswered}/>
 				</div>
 			);
-		}.bind(this));
+		}.bind(this));*/
 		return (
 			<div className="answerList">
-				<ol type="a">
-					{answerNodes}
-				</ol>
+				<BarChart
+                data={this.props.answerList}
+                stats={this.state.stats}
+                isAnswered={this.state.isAnswered}
+                on_click_fn={this.handleClick}/>
 			</div>
 		);
 	}
