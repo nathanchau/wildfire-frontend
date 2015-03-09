@@ -44,7 +44,7 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
       .attr("width",  el.offsetWidth)
       .attr("height", (barHeight + gap * 2) * data.length);
 
-  console.log("isAnswered = " + isAnswered);
+  console.log("chart height = " + (barHeight + gap * 2) * data.length);
 
   if(untrimmedStats) {
     var stats = new Array();

@@ -4,16 +4,14 @@ var d3PieChart = require('./d3PieChart');
 
 var PieChart = React.createClass({
   propTypes: {
-    data: React.PropTypes.array,
-    domain: React.PropTypes.object
+    data: React.PropTypes.object,
+    answerOptions: React.PropTypes.array
   },
 
   componentDidMount: function() {
     var el = this.getDOMNode();
-    d3PieChart.create(el, {
-      width: '100%',
-      height: '300px'
-    }, this.getChartState());
+    console.log("inPie " + this.getChartState());
+    d3PieChart.create(el,this.getChartState());
   },
 
   componentDidUpdate: function() {
@@ -22,9 +20,15 @@ var PieChart = React.createClass({
   },
 
   getChartState: function() {
+    var statsObj = this.props.data;
+    var statsArray = [statsObj.option1, statsObj.option2, statsObj.option3, statsObj.option4, statsObj.option5];
+    var truncatedStats = new Array();
+    // Truncate stats as necessary to match data.length
+    for (var i = 0; i < this.props.answerOptions.length; i++) {
+      truncatedStats[i] = {"label": this.props.answerOptions[i], "value": statsArray[i]};
+    }
     return {
-      data: this.props.data,
-      domain: this.props.domain
+      data: truncatedStats//getData()
     };
   },
 

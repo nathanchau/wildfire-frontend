@@ -4,11 +4,20 @@ require('./expanding');
 require('jquery');
 
 var React = require('react');
+
+//Router 
+RouterMixin = require('react-mini-router').RouterMixin;
+var navigate = require('react-mini-router').navigate;
+var DetailedStats = require('./DetailedStats');
+
+//Quick view
 var BarChart = require('./BarChart');
 var PieChart = require('./PieChart');
+
 var LogInCreatorContent = require('./LogInCreatorContent');
 var QuestionCreatorContent = require('./QuestionCreatorContent');
 
+// URLs
 var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/question/";
 var POST_ANSWER_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/";
 var GET_STATS_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/stats/";
@@ -114,7 +123,6 @@ var QuestionList = React.createClass({
   			);
   		}.bind(this));
     }
-    console.log(fakeIsAnswered);
 		return (
 			<div className="questionList">
 				{questionNodes}
@@ -144,7 +152,7 @@ var Question = React.createClass({
 		var answeredNode;
     //console.log(this.state.questionObj.asker);
 		if (this.state.questionObj.isAnswered) {
-			answeredNode = <IfAnswered />;
+			//answeredNode = <IfAnswered />;
 		}
 		return (
 			<div className="question">
@@ -163,8 +171,6 @@ var Question = React.createClass({
           answers={this.state.questionObj.answers} 
           currentUser={this.props.currentUser}
           onResponse={this.handleResponse} />
-				
-        {answeredNode}
 			</div>
 		);
 	}
@@ -219,9 +225,15 @@ var AnswerList = React.createClass({
       return {
           stats: null,
           piedata: piedata,
-          isAnswered: this.props.index
+          isAnswered: fakeIsAnswered[this.props.index]
       };
     },
+  detailsClick: function() {
+    if(this.state.isAnswered && this.state.stats) {
+      console.log("going to detailed stats");
+      navigate('/detailedStats/' + this.props.questionId);
+    }
+  },
 	handleClick: function(index) {
 		console.log("isAnswered" + this.state.isAnswered);
 		var clickedAnswer = this.props.answerOptions[index];
@@ -262,8 +274,8 @@ var AnswerList = React.createClass({
 	render: function() {
     //console.log(this.props.answerOptions);
 		return (
-			<div className="answerList">
-				<BarChart
+			<div className="answerList" onClick={this.detailsClick}>
+				<BarChart 
                 data={this.props.answerOptions}
                 stats={this.state.stats}
                 isAnswered={fakeIsAnswered[this.props.index]}
@@ -290,7 +302,7 @@ var Answer = React.createClass({
 	}
 });
 
-var IfAnswered = React.createClass({
+/*var IfAnswered = React.createClass({
 	render: function() {
 		return (
 			<div className="ifAnswered">
@@ -316,7 +328,7 @@ var AnalysisCard = React.createClass({
 			<div className="analysisCard">Analysis Card</div>
 		);
 	}
-});
+});*/
 
 // Question Creator
 var QuestionCreatorContainer = React.createClass({
@@ -410,7 +422,7 @@ var LogInCreator = React.createClass({
 	}
 });
 
-var App = React.createClass({
+var HomePage = React.createClass({
 	render: function() {
 		return (
 			<div className="body">
@@ -419,6 +431,38 @@ var App = React.createClass({
 			</div>
     	);
   	}
+});
+
+var App = React.createClass({
+
+    mixins: [RouterMixin],
+
+    routes: {
+        '/': 'home',
+        '/message/:text': 'message',
+        '/detailedStats/:id' : 'detailedStats'
+    },
+
+    render: function() {
+        return this.renderCurrentRoute();
+    },
+
+    home: function() {
+        return <HomePage/>;
+    },
+
+    message: function(text) {
+        return <div>{text}</div>;
+    },
+
+    detailedStats: function(id) {
+        return <DetailedStats id={id} data={piedata}/>;
+    },
+
+    notFound: function(path) {
+        return <div class="not-found">Page Not Found: {path}</div>;
+    }
+
 });
 
 module.exports = App;
