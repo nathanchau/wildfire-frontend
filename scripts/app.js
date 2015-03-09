@@ -20,7 +20,12 @@ var piedata = [ {name: "one", value: 10375},
       {name: "four", value:  516},
       {name: "five", value:  491} ];
 
+var fakeIsAnswered = [];
+
 var QuestionBox = React.createClass({
+  getInitialState: function() {
+    return {data: [], currentUser: null};
+  },
 	loadQuestionsFromServer: function() {
     $.ajax({
       	url: this.props.url,
@@ -50,8 +55,9 @@ var QuestionBox = React.createClass({
   		this.setState({currentUser: data});
   	}
 	},
+  /*NOT BEING USED*/
 	handleResponse: function(data) {
-		console.log('(In QuestionBox) Answer: ' + data.response.answer);
+		//console.log('(In QuestionBox) Answer: ' + data.response.answer); //TODO: server NOT ANSWERING YET
 		// Get current data, add new answer, set state
 		var newData = this.state.data;
 
@@ -64,12 +70,9 @@ var QuestionBox = React.createClass({
   			}
   		});
   		if (this.isMounted()) {
-    		this.setState({data: newData});
+    		//this.setState({data: newData});
     	}
     }
-	},
-	getInitialState: function() {
-  	return {data: [], currentUser: null};
 	},
 	componentDidMount: function() {
   	this.loadQuestionsFromServer();
@@ -92,8 +95,8 @@ var QuestionBox = React.createClass({
 				<QuestionCreatorContainer isHidden={askHidden} onQuestionCreation={this.handleQuestionCreation} currentUser={this.state.currentUser} />
 				<QuestionList 
           data={this.state.data} 
-          onResponse={this.handleResponse} 
-          currentUser={this.state.currentUser}/>
+          currentUser={this.state.currentUser}
+          onResponse={this.handleResponse} />
 			</div>
 		);
 	}
@@ -101,24 +104,17 @@ var QuestionBox = React.createClass({
 
 var QuestionList = React.createClass({
 	render: function() {
-    console.log(this.props.data);
     if(this.props.data.response) {
-  		var questionNodes = this.props.data.response.map(function (question) {
+  		var questionNodes = this.props.data.response.map(function (questionObj, index) {
+        if(fakeIsAnswered.length < this.props.data.response.length) {
+          fakeIsAnswered.push(false);
+        }
   			return (
-  				<Question 
-            questionText={question.text} 
-            questionId={question.id} 
-            username={question.asker.username} 
-            firstName={question.asker.first_name} 
-            answerList={question.options}
-            avatarURL={question.asker.avatarUrl} 
-            isAnswered={question.isAnswered} 
-            answers={question.answers} 
-            onResponse={this.props.onResponse} 
-            currentUser={this.props.currentUser}/>
+  				<Question index = {index} questionObj={questionObj} onResponse={this.props.onResponse} />
   			);
   		}.bind(this));
     }
+    console.log(fakeIsAnswered);
 		return (
 			<div className="questionList">
 				{questionNodes}
@@ -128,52 +124,91 @@ var QuestionList = React.createClass({
 });
 
 var Question = React.createClass({
+  getInitialState: function() {
+    return {questionObj: this.props.questionObj};
+  },
+  handleResponse: function(data) {
+    //console.log('(In QuestionBox) Answer: ' + data.response.answer); //TODO: server NOT ANSWERING YET
+    // Get current data, add new answer, set state
+    var newData = this.state.questionObj;
+
+    if(newData) {
+      console.log('Pushed to ' + this.state.questionObj.id);
+      this.state.questionObj.answers.push(data);
+    }
+    if (this.isMounted()) {
+      this.setState({questionObj: newData});
+    }
+  },
 	render: function() {
 		var answeredNode;
-		if (this.props.isAnswered) {
+    //console.log(this.state.questionObj.asker);
+		if (this.state.questionObj.isAnswered) {
 			answeredNode = <IfAnswered />;
 		}
 		return (
 			<div className="question">
-				<QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} />
-				<QuestionContent onResponse={this.props.onResponse} questionText={this.props.questionText} questionId = {this.props.questionId} answerList={this.props.answerList} isAnswered={this.props.isAnswered} answers={this.props.answers} currentUser={this.props.currentUser}/>
-				{answeredNode}
+			  <QuestionHeader 
+          avatarUrl={this.state.questionObj.asker.avatarUrl} 
+          username={this.state.questionObj.asker.username} 
+          first_name={this.state.questionObj.asker.first_name} 
+          score={this.state.questionObj.answers.length} />
+				
+        <QuestionContent 
+          index={this.props.index}
+          questionText={this.state.questionObj.text} 
+          questionId = {this.state.questionObj.id} 
+          answerOptions={this.state.questionObj.options} 
+          isAnswered={this.state.questionObj.isAnswered} 
+          answers={this.state.questionObj.answers} 
+          currentUser={this.props.currentUser}
+          onResponse={this.handleResponse} />
+				
+        {answeredNode}
 			</div>
 		);
 	}
 });
 
 var QuestionHeader = React.createClass({
-	render: function() {
-		var classString = 'questionHeader';
-		if (this.props.isCondensed) {
-			classString += ' condensed';
-		}
-		var avatarURL;
-		if (this.props.avatarURL) {
-			avatarURL = this.props.avatarURL;
-		} else {
-			avatarURL = "";
-		}
-		return (
-			<div className={classString}>
-				<img src={avatarURL} className="questionAvatar" />
-				<div className="questionUsername">{this.props.firstName}</div>
-				<div className="questionCategory">asked about Technology</div>
-				<div className="questionScore">{this.props.score}</div>
-				<div className="questionScoreAccessory">answered</div>
-				<div className="questionAsk">{this.props.condensedText}</div>
-			</div>
-		);
-	}
+  render() {
+    var classString = 'questionHeader';
+    if (this.props.isCondensed) {
+      classString += ' condensed';
+    }
+    var avatarUrl;
+    if (this.props.avatarUrl) {
+      avatarUrl = this.props.avatarUrl;
+    } else {
+      avatarUrl = "";
+    }
+    return (
+      <div className={classString}>
+        <img src={avatarUrl} className="questionAvatar" />
+        <div className="questionUsername">{this.props.first_name}</div>
+        <div className="questionCategory">asked about Technology</div>
+        <div className="questionScore">{this.props.score}</div>
+        <div className="questionScoreAccessory">answered</div>
+        <div className="questionAsk">{this.props.condensedText}</div>
+      </div>
+    );
+  }
 });
 
 var QuestionContent = React.createClass({
 	render: function() {
+    //console.log(this.props.onResponse);
 		return (
 			<div className="questionContent">
 				<div className="questionText">{this.props.questionText}</div>
-				<AnswerList answerList={this.props.answerList} questionId={this.props.questionId} onResponse={this.props.onResponse} isAnswered={this.props.isAnswered} answers={this.props.answers} currentUser={this.props.currentUser}/>
+				<AnswerList 
+          index={this.props.index}
+          answerOptions={this.props.answerOptions} 
+          questionId={this.props.questionId} 
+          isAnswered={this.props.isAnswered} 
+          answers={this.props.answers} 
+          currentUser={this.props.currentUser}
+          onResponse={this.props.onResponse} />
 			</div>
 		);
 	}
@@ -182,18 +217,18 @@ var QuestionContent = React.createClass({
 var AnswerList = React.createClass({
   getInitialState: function() {
       return {
-          stats: [0, 0, 0, 0, 0],
+          stats: null,
           piedata: piedata,
-          isAnswered: false
+          isAnswered: this.props.index
       };
     },
 	handleClick: function(index) {
 		console.log("user clicked: " + index);
 
-		var clickedAnswer = this.props.answerList[index];
+		var clickedAnswer = this.props.answerOptions[index];
 		var JSONObj = { "user": 4, "question": this.props.questionId, "answer": index };
 		var JSONStr = JSON.stringify(JSONObj);
-		console.log('You clicked: ' + this.props.answerList[index]);
+		console.log('You clicked: ' + this.props.answerOptions[index]);
 		$.ajax({
         url: POST_ANSWER_URL,
         dataType: 'json',
@@ -201,6 +236,8 @@ var AnswerList = React.createClass({
         data: JSONStr,
         success: function(data) {
         	this.props.onResponse(data);
+          fakeIsAnswered[this.props.index] = true;
+          this.setState({isAnswered: fakeIsAnswered[this.props.index]});
         }.bind(this),
         error: function(xhr, status, err) {
           console.error(url, status, err.toString());
@@ -213,22 +250,23 @@ var AnswerList = React.createClass({
           var response = data.response;
           if (this.isMounted()) {
             statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
-            this.setState({isAnswered: true, stats: statsArray});
-            console.log(response.quick);
+            this.setState({stats: statsArray});
           }
         }.bind(this),
         error: function(xhr, status, err) {
           console.error(url, status, err.toString());
           }.bind(this)
       });
+    console.log("after ajax post: fakeIsAnswered = " + fakeIsAnswered);
 	},
 	render: function() {
+    //console.log(this.props.answerOptions);
 		return (
 			<div className="answerList">
 				<BarChart
-                data={this.props.answerList}
+                data={this.props.answerOptions}
                 stats={this.state.stats}
-                isAnswered={this.state.isAnswered}
+                isAnswered={fakeIsAnswered[this.props.index]}
                 on_click_fn={this.handleClick}/>
 			</div>
 		);
@@ -287,18 +325,18 @@ var QuestionCreatorContainer = React.createClass({
 		if (this.props.isHidden) {
 			className = className + " condensed"
 		}
-		var avatarURL;
+		var avatarUrl;
 		var username;
-		var firstName;
+		var first_name;
 		var currentUser;
 		if (currentUser = this.props.currentUser) {
-			avatarURL = currentUser.avatarUrl;
+			avatarUrl = currentUser.avatarUrl;
 			username = currentUser.username;
-			firstName = currentUser.first_name;
+			first_name = currentUser.first_name;
 		};
 		return (
 			<div className={className}>
-				<QuestionCreator onQuestionCreation={this.props.onQuestionCreation} avatarURL={avatarURL} username={username} firstName={firstName} currentUser={this.props.currentUser}/>
+				<QuestionCreator onQuestionCreation={this.props.onQuestionCreation} avatarUrl={avatarUrl} username={username} first_name={first_name} currentUser={this.props.currentUser}/>
 			</div>
 		);
 	}
@@ -313,7 +351,6 @@ var QuestionCreator = React.createClass({
 		if (this.state.isCondensed) {
 			document.questionCreatorForm.questionText.focus();
 		};
-		console.log(this.props.avatarURL);
 	},
 	handleSubmit: function(e) {
 		this.setState({isCondensed: true});
@@ -321,9 +358,9 @@ var QuestionCreator = React.createClass({
 	render: function() {
 		var creatorNode;
 		if (this.state.isCondensed) {
-			creatorNode = <div className="questionCreator"><QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score="0" isCondensed={true} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
+			creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} first_name={this.props.first_name} score="0" isCondensed={true} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
 		} else {
-			creatorNode = <div className="questionCreator"><QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score="0" isCondensed={false} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
+			creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} first_name={this.props.first_name} score="0" isCondensed={false} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
 		}
 		return (
 			<div onClick={this.handleClick}>{creatorNode}</div>
@@ -363,9 +400,9 @@ var LogInCreator = React.createClass({
 	render: function() {
 		var creatorNode;
 		if (this.state.isCondensed) {
-			creatorNode = <div className="logInCreator"><QuestionHeader avatarURL="" username="Nathan" firstName="Nathan" score="0" isCondensed={true} condensedText="Click to Log In"/><LogInCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onLogIn={this.props.onLogIn}/></div>;
+			creatorNode = <div className="logInCreator"><QuestionHeader avatarUrl="" username="Nathan" first_name="Nathan" score="0" isCondensed={true} condensedText="Click to Log In"/><LogInCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onLogIn={this.props.onLogIn}/></div>;
 		} else {
-			creatorNode = <div className="logInCreator"><QuestionHeader avatarURL="" username="Nathan" firstName="Nathan" score="0" isCondensed={true} condensedText="Click to Log In"/><LogInCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onLogIn={this.props.onLogIn}/></div>;
+			creatorNode = <div className="logInCreator"><QuestionHeader avatarUrl="" username="Nathan" first_name="Nathan" score="0" isCondensed={true} condensedText="Click to Log In"/><LogInCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onLogIn={this.props.onLogIn}/></div>;
 		}
 		return (
 			<div onClick={this.handleClick}>{creatorNode}</div>
