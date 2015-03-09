@@ -137,7 +137,7 @@ var Question = React.createClass({
       this.state.questionObj.answers.push(data);
     }
     if (this.isMounted()) {
-      this.setState({questionObj: newData});
+      //this.setState({questionObj: newData});
     }
   },
 	render: function() {
@@ -223,8 +223,7 @@ var AnswerList = React.createClass({
       };
     },
 	handleClick: function(index) {
-		console.log("user clicked: " + index);
-
+		console.log("isAnswered" + this.state.isAnswered);
 		var clickedAnswer = this.props.answerOptions[index];
 		var JSONObj = { "user": 4, "question": this.props.questionId, "answer": index };
 		var JSONStr = JSON.stringify(JSONObj);
@@ -236,8 +235,8 @@ var AnswerList = React.createClass({
         data: JSONStr,
         success: function(data) {
         	this.props.onResponse(data);
-          fakeIsAnswered[this.props.index] = true;
-          this.setState({isAnswered: fakeIsAnswered[this.props.index]});
+          //fakeIsAnswered[this.props.index] = true;
+          //this.setState({isAnswered: fakeIsAnswered[this.props.index]});
         }.bind(this),
         error: function(xhr, status, err) {
           console.error(url, status, err.toString());
@@ -250,7 +249,8 @@ var AnswerList = React.createClass({
           var response = data.response;
           if (this.isMounted()) {
             statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
-            this.setState({stats: statsArray});
+            fakeIsAnswered[this.props.index] = true;
+            this.setState({isAnswered: fakeIsAnswered[this.props.index], stats: statsArray});
           }
         }.bind(this),
         error: function(xhr, status, err) {

@@ -34,6 +34,7 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
   var textWidth = 40; 
   var barWidth = el.offsetWidth - textWidth - gap;
   var barHeight = 30;
+  var statsText;
 
   var chart = d3.select(el).selectAll("svg");
   if ( chart.empty() ) chart = d3.select(el).append("svg");
@@ -52,7 +53,7 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
     for (var i = 0; i < data.length; i++) {
       stats[i] = untrimmedStats[i];
     }
-    
+    console.log("stats = " + stats);
     // Scale for normalizing stats out of 100
     var statsSum = d3.sum(stats);
     var statsNormScale = d3.scale.linear()
@@ -80,7 +81,11 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
   var bars = chart.selectAll("rect .bar")
       .data(data);
   var answers = chart.selectAll("text .answers")
-      .data(data);
+      .data(data)
+  if(stats && !statsText) {
+    statsText = chart.selectAll("text .stats")
+       .data(stats);
+  }
 
   backgroundBars.enter()
       .append('rect')
@@ -126,9 +131,6 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
 
   // Update
  if(untrimmedStats) {
-    var statsText = chart.selectAll("text .stats")
-       .data(stats).remove();
-
     if(statsText) {
       statsText.remove();
     }
@@ -141,6 +143,7 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
 
     statsText.enter()
     .append("text")
+      .classed('stats', true)
       .attr("x", barWidth + gap + textWidth/2) 
       .attr("y", function(d){ return yStats(d) + yStats.rangeBand()/2; } )
       .attr("dx", 0)
