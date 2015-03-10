@@ -43,6 +43,11 @@ var QuestionBox = React.createClass({
       		if (this.isMounted()) {
         		this.setState({data: data});
         	}
+    		// Check if user is currently logged in - if so, set to currentUser
+    		console.log("currentUser is " + data.user);
+    		if (data.user != "Anonymous" && this.isMounted()) {
+    			this.setState({currentUser: data.user});
+    		}
       	}.bind(this),
       	error: function(xhr, status, err) {
         	console.error(this.props.url, status, err.toString());
@@ -50,16 +55,19 @@ var QuestionBox = React.createClass({
     	});
 	},
 	handleQuestionCreation: function(data) {
-		console.log('(In QuestionBox) New Question' + data.id);
+		console.log('(In QuestionBox) New Question ' + data.id);
 		// Get current data, add new question, set state
 		var newData = this.state.data;
-		newData.unshift(data);
+		console.log(newData.response.popularQuestions.length);
+		newData.response.popularQuestions.unshift(data);
+		console.log(newData.response.popularQuestions.length);
 		if (this.isMounted()) {
-  		this.setState({data: newData});
-  	}
+			console.log("Mounted and setting new state");
+  			this.setState({data: newData});
+  		}
 	},
 	handleLogIn: function(data) {
-		console.log('(In QuestionBox) New User Authenticated ' + data.response.username);
+		console.log('(In QuestionBox) New User Authenticated ' + data.username);
 		if (this.isMounted()) {
   		this.setState({currentUser: data});
   	}
@@ -113,16 +121,16 @@ var QuestionBox = React.createClass({
 
 var QuestionList = React.createClass({
 	render: function() {
-    if(this.props.data.response) {
-  		var questionNodes = this.props.data.response.map(function (questionObj, index) {
-        if(fakeIsAnswered.length < this.props.data.response.length) {
-          fakeIsAnswered.push(false);
-        }
-  			return (
-  				<Question index = {index} questionObj={questionObj} onResponse={this.props.onResponse} />
-  			);
-  		}.bind(this));
-    }
+	    if(this.props.data.response) {
+	  		var questionNodes = this.props.data.response.popularQuestions.map(function (questionObj, index) {
+	        	if(fakeIsAnswered.length < this.props.data.response.length) {
+	        	  	fakeIsAnswered.push(false);
+	        	}
+	  			return (
+	  				<Question index = {index} questionObj={questionObj} onResponse={this.props.onResponse} />
+	  			);
+	  		}.bind(this));
+	    }
 		return (
 			<div className="questionList">
 				{questionNodes}
@@ -426,7 +434,7 @@ var HomePage = React.createClass({
 	render: function() {
 		return (
 			<div className="body">
-				<div className="Title"><h1><i className="fa fa-tree"></i></h1></div>
+				<div className="Title"><img className="logo" src="../images/wildfire-logo.png"/></div>
 				<QuestionBox url={GET_QUESTION_URL} pollInterval={200000}/>
 			</div>
     	);

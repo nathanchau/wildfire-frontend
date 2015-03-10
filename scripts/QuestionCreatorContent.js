@@ -31,7 +31,8 @@ var QuestionCreatorContent = React.createClass({
 	        	data: JSONStr,
 	        	success: function(data) {
 	          		//this.setState({data: data});
-	          		this.props.onQuestionCreation(data);
+	          		console.log(data.response);
+	          		this.props.onQuestionCreation(data.response);
 	        	}.bind(this),
 	        	error: function(xhr, status, err) {
 	        	  	console.error(status, err.toString());
