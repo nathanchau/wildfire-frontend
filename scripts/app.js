@@ -39,13 +39,28 @@ var QuestionBox = React.createClass({
     $.ajax({
       	url: this.props.url,
       	dataType: 'json',
+      	beforeSend: function(xhr) {
+      		// Get cookie and set header
+      		var cookies = document.cookie.split(";");
+      		var tokenValue;
+      		for (var i = 0; i < cookies.length; i++) {
+      			var eachCookie = cookies[i].split("=");
+      			if (eachCookie[0] == "token") {
+      				tokenValue = eachCookie[1];
+      			}
+      		}
+      		console.log("Token is " + tokenValue);
+      		if (tokenValue) {
+      			xhr.setRequestHeader("Authorization", "Token " + tokenValue);
+      		}
+      	},
       	success: function(data) {
       		if (this.isMounted()) {
         		this.setState({data: data});
         	}
     		// Check if user is currently logged in - if so, set to currentUser
     		console.log("currentUser is " + data.user);
-    		if (data.user != "Anonymous" && this.isMounted()) {
+    		if (data.user && this.isMounted()) {
     			this.setState({currentUser: data.user});
     		}
       	}.bind(this),
@@ -69,8 +84,13 @@ var QuestionBox = React.createClass({
 	handleLogIn: function(data) {
 		console.log('(In QuestionBox) New User Authenticated ' + data.username);
 		if (this.isMounted()) {
-  		this.setState({currentUser: data});
-  	}
+  			this.setState({currentUser: data});
+  		}
+  		// Set client-side cookie to token
+  		// Currently set to expire a long time from now
+  		// Todo: Implement Log Out
+  		document.cookie = "token=" + data.token + "; expires=Mon, 1 Jan 2020 00:00:00 UTC";
+
 	},
   /*NOT BEING USED*/
 	handleResponse: function(data) {
