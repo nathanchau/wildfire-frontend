@@ -56,9 +56,12 @@ var DetailedStats = React.createClass({
 
   render: function() {
     return (
-      <div className="questionList">
-        <Question questionObj={this.state.questionObj} stats={this.state.stats} />
-      </div>//PieChart data={this.props.data}/>;
+      <div className="body">
+        <div className="Title"><img className="logo" src="../images/wildfire-logo.png"/></div>
+        <div className="questionList">
+          <Question questionObj={this.state.questionObj} stats={this.state.stats} />
+        </div>
+      </div>
     );
   }
 });
