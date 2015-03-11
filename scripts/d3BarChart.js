@@ -60,13 +60,7 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
       .domain([0, statsSum])
       .rangeRound([0, 100]);
     //console.log("stats = " + stats);
-
-    var yStats = d3.scale.ordinal()
-      .domain(stats)
-      .rangeRoundBands([0, (barHeight + 2 * gap) * stats.length]);
   }
-
-  var curIsAnswered = isAnswered;
 
   var x = d3.scale.linear()
       .domain([0, statsSum])
@@ -87,6 +81,7 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
        .data(stats);
   }
 
+  console.log("barchart isAnswered " + isAnswered);
   backgroundBars.enter()
       .append('rect')
       .classed('background', true)
@@ -95,14 +90,14 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
       .attr('width', barWidth)
       .attr('height', barHeight)
       .attr('fill', 'rgb(244, 244, 244)')
-      .on("mouseover", !isAnswered ? function() {
+      .on("mouseover", isAnswered < 0 ? function() {
         d3.select(this).style("fill", "orange");
       }: null)
       .on("mouseout", function() {
         d3.select(this).style("fill", "rgb(244, 244, 244)")
       })
       .on("click", function(d, i) {
-        if(!curIsAnswered) {
+        if(isAnswered < 0) {
           on_click_fn(i);
           console.log("rect" + d);
         }
@@ -145,7 +140,7 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
     .append("text")
       .classed('stats', true)
       .attr("x", barWidth + gap + textWidth/2) 
-      .attr("y", function(d){ return yStats(d) + yStats.rangeBand()/2; } )
+      .attr("y", function(d, i){ return (i+0.5)*(barHeight + 2*gap)} )
       .attr("dx", 0)
       .attr("dy", ".36em")
       .attr("text-anchor", "middle")

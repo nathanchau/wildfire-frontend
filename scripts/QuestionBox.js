@@ -127,8 +127,8 @@ var QuestionList = React.createClass({
 	render: function() {
 	    if(this.props.data.response) {
 	  		var questionNodes = this.props.data.response.popularQuestions.map(function (questionObj, index) {
-	        	if(fakeIsAnswered.length < this.props.data.response.length) {
-	        	  	fakeIsAnswered.push(false);
+	        	if(fakeIsAnswered.length < this.props.data.response.popularQuestions.length) {
+	        	  	fakeIsAnswered.push(-1);
 	        	}
 	  			return (
 	  				<Question index = {index} questionObj={questionObj} onResponse={this.props.onResponse} />
@@ -234,12 +234,17 @@ var QuestionContent = React.createClass({
 
 var AnswerList = React.createClass({
   getInitialState: function() {
-      return {
-          stats: null,
-          piedata: piedata,
-          isAnswered: fakeIsAnswered[this.props.index]
-      };
-    },
+    return {
+        stats: null,
+        piedata: piedata,
+        isAnswered: fakeIsAnswered[this.props.index]
+    };
+  },
+  componentDidMount: function() {
+  	if(this.state.isAnswered >= 0) {
+  		this.getStats(this.state.isAnswered);
+  	}
+  },
   detailsClick: function() {
     if(this.state.isAnswered && this.state.stats) {
       console.log("going to detailed stats");
@@ -266,14 +271,33 @@ var AnswerList = React.createClass({
           console.error(url, status, err.toString());
         }.bind(this)
       });
-    $.ajax({
+		this.getStats(index);
+    /*$.ajax({
         url: GET_STATS_URL + this.props.questionId + "/",
         dataType: 'json',
         success: function(data) {
           var response = data.response;
           if (this.isMounted()) {
             statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
-            fakeIsAnswered[this.props.index] = true;
+            fakeIsAnswered[this.props.index] = index;
+            this.setState({isAnswered: fakeIsAnswered[this.props.index], stats: statsArray});
+          }
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(url, status, err.toString());
+          }.bind(this)
+      });*/
+    console.log("after ajax post: fakeIsAnswered = " + fakeIsAnswered);
+	},
+	getStats: function(index) {
+		$.ajax({
+        url: GET_STATS_URL + this.props.questionId + "/",
+        dataType: 'json',
+        success: function(data) {
+          var response = data.response;
+          if (this.isMounted()) {
+            statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
+            fakeIsAnswered[this.props.index] = index;
             this.setState({isAnswered: fakeIsAnswered[this.props.index], stats: statsArray});
           }
         }.bind(this),
@@ -281,7 +305,6 @@ var AnswerList = React.createClass({
           console.error(url, status, err.toString());
           }.bind(this)
       });
-    console.log("after ajax post: fakeIsAnswered = " + fakeIsAnswered);
 	},
 	render: function() {
     //console.log(this.props.answerOptions);
