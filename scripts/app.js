@@ -6,7 +6,7 @@ require('jquery');
 var React = require('react');
 
 var QuestionBox = require('./QuestionBox');
-
+var NavBar = require('./NavBar');
 // URLs
 var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/question/";
 
@@ -25,7 +25,7 @@ var HomePage = React.createClass({
 	render: function() {
 		return (
 			<div className="body">
-				<div className="Title"><img className="logo" src="../images/wildfire-logo.png"/></div>
+				<NavBar />
 				<QuestionBox url={GET_QUESTION_URL} pollInterval={200000}/>
 			</div>
     	);

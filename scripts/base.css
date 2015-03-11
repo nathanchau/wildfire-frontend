@@ -2,11 +2,15 @@ body {
 	background-color: rgb(244,244,244);
 	color: rgb(60,60,60);
 	font-family: "Helvetica Neue", Arial, sans-serif;
-	margin: 10px;
+	margin: 0px;
 }
 
 .font-weight-medium {
 	font-weight: 500;
+}
+
+.blue {
+	color: rgb(41, 128, 185) !important;
 }
 
 .title {
@@ -16,12 +20,118 @@ body {
 	margin-bottom: 10px;
 }
 
-.logo {
+/* Nav Bar -----------------------------------------*/
+.navBarBackground {
+	height: 45px;
+	line-height: 45px;
+	width: 100%;
+	background-color: rgba(255,255,255,0.95);
+	margin: 0;
+	margin-bottom: 10px;
+	padding: 0;
+	text-align: center;
+	border-bottom-style: solid;
+	border-bottom-width: 1px;
+	border-bottom-color: rgb(244,244,244);
+	position: fixed;
+	z-index: 100;
+}
+
+.navBarInner {
+	max-width: 800px;
+	margin: 0 auto;
+	position: relative;
+	font-size: 14px;
+	font-family: "Helvetica Neue", sans-serif;
+	font-weight: 500;
+	color: rgb(80,80,80);
+}
+
+.navLogo {
 	height: 40px;
 	width: 40px;
+	display: block;
+	margin: 0 auto;
+	padding-top: 3px;
+}
+
+@media (max-width: 450px) {
+	.navLogo {
+		margin-left: 200px;
+	}
+}
+
+.navHome {
+	line-height: 45px;
+	position: absolute;
+	left: 0px;
+	height: 100%;
+	width: 90px;
+	display: inline;
+	color: rgb(80,80,80);
+}
+
+.navHome:hover {
+	color: rgb(235, 173, 40);
+	transform: rotate(-2deg);
+}
+
+.navHomeText {
+	position: absolute;
+	left: 40px;
+}
+
+.navHomeImage {
+	position: absolute;
+	left: 10px;
+	top: 8px;
+}
+
+.navDiscover {
+	position: absolute;
+	left: 90px;
+	height: 100%;
+	line-height: 45px;
+	display: inline;
+	width: 110px;
+	color: rgb(80,80,80);
+}
+
+.navDiscover:hover {
+	color: rgb(235, 173, 40);
+	transform: rotate(-2deg);
+}
+
+.navDiscoverText {
+	position: absolute;
+	left: 40px;
+}
+
+.navDiscoverImage {
+	position: absolute;
+	left: 10px;
+	top: 9px;
+}
+
+.navProfileAvatarLink {
+	position: absolute;
+	top: 0px;
+	right: 10px;
+}
+
+.navProfileAvatarImage {
+	height: 34px;
+	width: 34px;
+	margin-top: 6px;
+	border-radius: 20px;
 }
 
 /* Question ----------------------------------------*/
+.questionBox {
+	margin: 0 10px;
+	padding-top: 60px;
+}
+
 .questionList, .questionCreatorContainer, .logInContainer {
 	max-width: 400px;
 	margin: 0 auto;
