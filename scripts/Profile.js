@@ -4,6 +4,9 @@ require('./base.css');
 var React = require('react');
 var QuestionBox = require('./QuestionBox');
 var NavBar = require('./NavBar');
+//Router 
+RouterMixin = require('react-mini-router').RouterMixin;
+var navigate = require('react-mini-router').navigate;
 
 // URLs
 var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/question/";

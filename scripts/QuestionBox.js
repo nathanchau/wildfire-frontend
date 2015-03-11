@@ -103,7 +103,7 @@ var QuestionBox = React.createClass({
 		var headerNode;
 		var logInHidden;
 		var askHidden;
-		if (!this.props.currentUser) {
+		if (!this.props.currentUser.id) {
 			logInHidden = false;
 			askHidden = true;
 		} else {
