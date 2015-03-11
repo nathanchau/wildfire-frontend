@@ -7,6 +7,8 @@ var React = require('react');
 
 var QuestionBox = require('./QuestionBox');
 var NavBar = require('./NavBar');
+var Profile = require('./Profile');
+
 // URLs
 var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/question/";
 
@@ -39,7 +41,8 @@ var App = React.createClass({
     routes: {
         '/': 'home',
         '/message/:text': 'message',
-        '/detailedStats/:id' : 'detailedStats'
+        '/detailedStats/:id' : 'detailedStats', 
+        '/profile/:id' : 'profile',
     },
 
     render: function() {
@@ -56,6 +59,10 @@ var App = React.createClass({
 
     detailedStats: function(id) {
         return <DetailedStats id={id} data={piedata}/>;
+    },
+
+    profile: function(id) {
+    	return <Profile id={id}/>;
     },
 
     notFound: function(path) {
