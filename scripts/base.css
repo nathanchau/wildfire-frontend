@@ -3,6 +3,7 @@ body {
 	color: rgb(60,60,60);
 	font-family: "Helvetica Neue", Arial, sans-serif;
 	margin: 0px;
+	-webkit-overflow-scrolling: touch; /* Supposed to provide native-like scrolling */
 }
 
 .font-weight-medium {

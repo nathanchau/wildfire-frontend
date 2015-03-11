@@ -2,6 +2,7 @@ var React = require('react');
 
 var NavBar = React.createClass({
 	render: function() {
+		console.log(this.props.currentUser);
 		return (
 			<div>
 				<div className="navBarBackground">
@@ -16,9 +17,9 @@ var NavBar = React.createClass({
 								<span className="navDiscoverText"> Discover</span>
 							</a>
 							<img className="navLogo" src="../images/wildfire-logo.png"/>
-							<a href="/profile/4" className="navProfileAvatarLink">
+							<a href={"/profile/"+this.props.currentUser.id} className="navProfileAvatarLink">
 								<span>
-									<img className="navProfileAvatarImage" src="https://igcdn-photos-f-a.akamaihd.net/hphotos-ak-xfa1/t51.2885-19/10895024_315160272028181_1781198120_a.jpg"/>
+									<img className="navProfileAvatarImage" src={this.props.currentUser.avatarUrl}/>
 								</span>
 							</a>
 						</span>

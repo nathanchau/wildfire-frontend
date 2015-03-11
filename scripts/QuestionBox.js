@@ -27,9 +27,10 @@ var fakeIsAnswered = [];
 
 var QuestionBox = React.createClass({
   getInitialState: function() {
-    return {data: [], currentUser: null};
+    return {data: []};
   },
 	loadQuestionsFromServer: function() {
+	console.log("loading questions from server");
     $.ajax({
       	url: this.props.url,
       	dataType: 'json',
@@ -55,7 +56,7 @@ var QuestionBox = React.createClass({
     		// Check if user is currently logged in - if so, set to currentUser
     		console.log("currentUser is " + data.user);
     		if (data.user && this.isMounted()) {
-    			this.setState({currentUser: data.user});
+    			this.props.onLogIn(data.user);
     		}
       	}.bind(this),
       	error: function(xhr, status, err) {
@@ -74,17 +75,6 @@ var QuestionBox = React.createClass({
 			console.log("Mounted and setting new state");
   			this.setState({data: newData});
   		}
-	},
-	handleLogIn: function(data) {
-		console.log('(In QuestionBox) New User Authenticated ' + data.username);
-		if (this.isMounted()) {
-  			this.setState({currentUser: data});
-  		}
-  		// Set client-side cookie to token
-  		// Currently set to expire a long time from now
-  		// Todo: Implement Log Out
-  		document.cookie = "token=" + data.token + "; expires=Mon, 1 Jan 2020 00:00:00 UTC";
-
 	},
   /*NOT BEING USED*/
 	handleResponse: function(data) {
@@ -113,7 +103,7 @@ var QuestionBox = React.createClass({
 		var headerNode;
 		var logInHidden;
 		var askHidden;
-		if (!this.state.currentUser) {
+		if (!this.props.currentUser) {
 			logInHidden = false;
 			askHidden = true;
 		} else {
@@ -122,11 +112,11 @@ var QuestionBox = React.createClass({
 		}
 		return (
 			<div className="questionBox">
-				<LogInContainer isHidden={logInHidden} onLogIn={this.handleLogIn}/>
-				<QuestionCreatorContainer isHidden={askHidden} onQuestionCreation={this.handleQuestionCreation} currentUser={this.state.currentUser} />
+				<LogInContainer isHidden={logInHidden} onLogIn={this.props.onLogIn}/>
+				<QuestionCreatorContainer isHidden={askHidden} onQuestionCreation={this.handleQuestionCreation} currentUser={this.props.currentUser} />
 				<QuestionList 
           data={this.state.data} 
-          currentUser={this.state.currentUser}
+          currentUser={this.props.currentUser}
           onResponse={this.handleResponse} />
 			</div>
 		);

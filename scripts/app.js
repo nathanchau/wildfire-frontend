@@ -24,11 +24,26 @@ var piedata = [ {name: "one", value: 10375},
       {name: "five", value:  491} ];
 
 var HomePage = React.createClass({
+	getInitialState: function() {
+		return {currentUser: {username:null, first_name:null, avatarUrl:null, id:null}};
+	},
+	handleLogIn: function(data) {
+		console.log('(In HomePage) New User Authenticated ' + data.username);
+		if (this.isMounted()) {
+  			this.setState({currentUser: data});
+  		}
+  		// Set client-side cookie to token
+  		// Currently set to expire a long time from now
+  		// Todo: Implement Log Out
+  		if (data.token) {
+  			document.cookie = "token=" + data.token + "; expires=Mon, 1 Jan 2020 00:00:00 UTC";
+  		}
+	},
 	render: function() {
 		return (
 			<div className="body">
-				<NavBar />
-				<QuestionBox url={GET_QUESTION_URL} pollInterval={200000}/>
+				<NavBar currentUser={this.state.currentUser} />
+				<QuestionBox url={GET_QUESTION_URL} pollInterval={200000} onLogIn={this.handleLogIn} currentUser={this.state.currentUser} />
 			</div>
     	);
   	}
