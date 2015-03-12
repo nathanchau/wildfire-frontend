@@ -232,12 +232,12 @@ body {
 	}
 	.profileQuestionsAnswered {
 		right: auto;
-		left: 150px;
+		left: 160px;
 		top: 35px;
 	}
 	.profileFollowers {
 		right: auto;
-		left: 210px;
+		left: 230px;
 		top: 35px;
 	}
 }
@@ -264,6 +264,52 @@ body {
 	width: 100%;
 	cursor: pointer;
 	margin-top: 6px;
+	font-weight: 500;
+}
+
+.profileSignOutButton {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+	font-size: 14px;
+	font-family: "Helvetica Neue";
+	color: white;
+	border-width: 0;
+	/*background-color: rgb(46, 204, 113);*/
+	background: linear-gradient(rgb(189, 195, 199), rgb(179, 185, 189));
+	border-radius: 4px;
+	box-shadow: none;
+	padding: 10px 20px;
+	width: 36.3%;
+	cursor: pointer;
+	margin: 10px;
+	margin-top: 6px;
+	margin-bottom: 0px;
+	font-weight: 500;
+}
+
+.profileSettingsButton {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+	font-size: 14px;
+	font-family: "Helvetica Neue";
+	color: white;
+	border-width: 0;
+	/*background-color: rgb(46, 204, 113);*/
+	background: linear-gradient(rgb(189, 195, 199), rgb(179, 185, 189));
+	border-radius: 4px;
+	box-shadow: none;
+	padding: 10px 20px;
+	width: 36.3%;
+	cursor: pointer;
+	margin-top: 6px;
+	margin-right: 0;
+	font-weight: 500;
+}
+
+.profileFollowButton:focus, .profileSignOutButton:focus, .profileSettingsButton:focus {
+	outline: none;
 }
 
 @media (min-width: 401px) {
@@ -273,6 +319,19 @@ body {
 		width: 310px;
 		top: -30px;
 	}
+}
+
+@media (max-width: 400px) {
+
+	.profileSignOutButton {
+		width: 48%;
+		margin-left: 0;
+	}
+
+	.profileSettingsButton {
+		width: 48%;
+	}
+
 }
 
 /* Question ----------------------------------------*/
@@ -329,6 +388,7 @@ body {
 	left: 40px;
 	font-weight: 500;
 	display: inline;
+	color: rgb(60,60,60);
 }
 
 .questionCategory {

@@ -172,7 +172,7 @@ var Question = React.createClass({
           avatarUrl={this.state.questionObj.asker.avatarUrl} 
           username={this.state.questionObj.asker.username} 
           first_name={this.state.questionObj.asker.first_name} 
-          score={this.state.questionObj.answers.length} />
+          score={this.state.questionObj.answers.length} id={this.state.questionObj.asker.id} />
 				
         <QuestionContent 
           index={this.props.index}
@@ -202,8 +202,10 @@ var QuestionHeader = React.createClass({
     }
     return (
       <div className={classString}>
+        <a href={"/profile/"+this.props.id}>
         <img src={avatarUrl} className="questionAvatar" />
         <div className="questionUsername">{this.props.first_name}</div>
+        </a>
         <div className="questionCategory">asked about Technology</div>
         <div className="questionScore">{this.props.score}</div>
         <div className="questionScoreAccessory">answered</div>
