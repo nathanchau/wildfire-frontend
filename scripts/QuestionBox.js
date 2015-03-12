@@ -172,7 +172,7 @@ var Question = React.createClass({
           avatarUrl={this.state.questionObj.asker.avatarUrl} 
           username={this.state.questionObj.asker.username} 
           first_name={this.state.questionObj.asker.first_name} 
-          score={this.state.questionObj.answers.length} id={this.state.questionObj.asker.id} />
+          score={this.state.questionObj.answers.length} id={this.state.questionObj.asker.id} categories={this.state.questionObj.categories}/>
 				
         <QuestionContent 
           index={this.props.index}
@@ -201,13 +201,19 @@ var QuestionHeader = React.createClass({
     } else {
       avatarUrl = "";
     }
+    var categoryText;
+    if (typeof this.props.categories != 'undefined' && this.props.categories.length > 0) {
+    	categoryText = "asked about " + this.props.categories.join(", ");
+    } else {
+    	categoryText = "asked";
+    }
     return (
       <div className={classString}>
         <a href={"/profile/"+this.props.id}>
         <img src={avatarUrl} className="questionAvatar" />
         <div className="questionUsername">{this.props.first_name}</div>
         </a>
-        <div className="questionCategory">asked about Technology</div>
+        <div className="questionCategory">{categoryText}</div>
         <div className="questionScore">{this.props.score}</div>
         <div className="questionScoreAccessory">answered</div>
         <div className="questionAsk">{this.props.condensedText}</div>

@@ -454,6 +454,10 @@ body {
 	width: 100%;
 }	
 
+.categoryCreatorText {
+	font-size: 14px;
+}
+
 .questionCreatorText, .logInCreatorText {
 	color: rgb(60,60,60);
 	letter-spacing: -0.2px;

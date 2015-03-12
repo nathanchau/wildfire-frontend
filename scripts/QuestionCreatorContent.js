@@ -21,7 +21,9 @@ var QuestionCreatorContent = React.createClass({
 				options.push(this.refs.answer5.getDOMNode().value);
 			}
 
-			var JSONObj = { "asker": this.props.currentUser.id, "questionType": 'MC', "text": this.refs.question.getDOMNode().value, "options": options};
+			var categories = this.refs.category.getDOMNode().value.split(" ");
+
+			var JSONObj = { "asker": this.props.currentUser.id, "questionType": 'MC', "text": this.refs.question.getDOMNode().value, "options": options, "categories": categories};
 			var JSONStr = JSON.stringify(JSONObj);
 
 			$.ajax({
@@ -29,6 +31,20 @@ var QuestionCreatorContent = React.createClass({
 	        	dataType: 'json',
 	        	type: 'POST',
 	        	data: JSONStr,
+		      	beforeSend: function(xhr) {
+		      		// Get cookie and set header
+		      		var cookies = document.cookie.split(";");
+		      		var tokenValue;
+		      		for (var i = 0; i < cookies.length; i++) {
+		      			var eachCookie = cookies[i].split("=");
+		      			if (eachCookie[0] == "token") {
+		      				tokenValue = eachCookie[1];
+		      			}
+		      		}
+		      		if (tokenValue) {
+		      			xhr.setRequestHeader("Authorization", "Token " + tokenValue);
+		      		}
+		      	},
 	        	success: function(data) {
 	          		//this.setState({data: data});
 	          		console.log(data.response);
@@ -40,6 +56,7 @@ var QuestionCreatorContent = React.createClass({
 	      	});
 
 	    	this.refs.question.getDOMNode().value = '';
+	    	this.refs.category.getDOMNode().value = '';
 	    	this.refs.answer1.getDOMNode().value = '';
 	    	this.refs.answer2.getDOMNode().value = '';
 	    	this.refs.answer3.getDOMNode().value = '';
@@ -68,6 +85,7 @@ var QuestionCreatorContent = React.createClass({
 			<div className={classString}>
 				<form className="questionCreatorForm" name="questionCreatorForm" onSubmit={this.handleSubmit} onInput={this.handleInput}>
 				<textarea className="expanding questionCreatorText" name="questionText" placeholder="Ask a question..." rows="1" ref="question"></textarea>
+				<textarea className="expanding questionCreatorText categoryCreatorText" name="categoryText" placeholder="Add a category..." rows="1" ref="category"></textarea>
 
 				<div className="questionCreatorAnswerList" id="questionCreatorAnswerList">
 					<ol type="a">
