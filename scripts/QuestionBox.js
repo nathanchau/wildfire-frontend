@@ -176,6 +176,7 @@ var Question = React.createClass({
 				
         <QuestionContent 
           index={this.props.index}
+          questionType={this.state.questionObj.questionType}
           questionText={this.state.questionObj.text} 
           questionId = {this.state.questionObj.id} 
           answerOptions={this.state.questionObj.options} 
@@ -217,18 +218,38 @@ var QuestionHeader = React.createClass({
 
 var QuestionContent = React.createClass({
 	render: function() {
-    //console.log(this.props.onResponse);
+    var answerNode;
+    switch(this.props.questionType) {
+      case "MC":
+          answerNode=<AnswerList 
+            index={this.props.index}
+            questionType={this.props.questionType}
+            answerOptions={this.props.answerOptions} 
+            questionId={this.props.questionId} 
+            isAnswered={this.props.isAnswered} 
+            answers={this.props.answers} 
+            currentUser={this.props.currentUser}
+            onResponse={this.props.onResponse} />
+          break;
+      /*case "RG":
+          answerNode=<RangeSliderAnswer
+            index={this.props.index}
+            questionType={this.props.questionType}
+            rangeMin={this.props.answerOptions[0]}
+            rangeMax={this.props.answerOptions[1]}
+            questionId={this.props.questionId} 
+            isAnswered={this.props.isAnswered} 
+            currentUser={this.props.currentUser}
+            onResponse={this.props.onResponse} />
+          break;*/
+      default:
+          console.log("Invalid question type = " + this.props.questionType);
+          return(null);
+    }
 		return (
 			<div className="questionContent">
 				<div className="questionText">{this.props.questionText}</div>
-				<AnswerList 
-          index={this.props.index}
-          answerOptions={this.props.answerOptions} 
-          questionId={this.props.questionId} 
-          isAnswered={this.props.isAnswered} 
-          answers={this.props.answers} 
-          currentUser={this.props.currentUser}
-          onResponse={this.props.onResponse} />
+				{answerNode}
 			</div>
 		);
 	}
@@ -248,7 +269,7 @@ var AnswerList = React.createClass({
   	}
   },
   detailsClick: function() {
-    if(this.state.isAnswered && this.state.stats) {
+    if(this.state.isAnswered >= 0 && this.state.stats) {
       console.log("going to detailed stats");
       navigate('/detailedStats/' + this.props.questionId);
     }
@@ -266,29 +287,12 @@ var AnswerList = React.createClass({
         data: JSONStr,
         success: function(data) {
         	this.props.onResponse(data);
-          //fakeIsAnswered[this.props.index] = true;
-          //this.setState({isAnswered: fakeIsAnswered[this.props.index]});
         }.bind(this),
         error: function(xhr, status, err) {
           console.error(url, status, err.toString());
         }.bind(this)
       });
 		this.getStats(index);
-    /*$.ajax({
-        url: GET_STATS_URL + this.props.questionId + "/",
-        dataType: 'json',
-        success: function(data) {
-          var response = data.response;
-          if (this.isMounted()) {
-            statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
-            fakeIsAnswered[this.props.index] = index;
-            this.setState({isAnswered: fakeIsAnswered[this.props.index], stats: statsArray});
-          }
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
-          }.bind(this)
-      });*/
     console.log("after ajax post: fakeIsAnswered = " + fakeIsAnswered);
 	},
 	getStats: function(index) {

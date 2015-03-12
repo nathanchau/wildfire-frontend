@@ -2,7 +2,7 @@
 var d3 = require('d3');
 var d3PieChart = {};
 
-/*var color = d3.scale.ordinal()
+var color = d3.scale.ordinal()
     .domain(["Lorem ipsum", "dolor sit", "amet", "consectetur", "adipisicing", "elit", "sed", "do", "eiusmod", "tempor", "incididunt"])
     .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
@@ -11,22 +11,38 @@ function randomData (){
     return labels.map(function(label){
       return { label: label, value: Math.random() }
     });
-  };*/
+  };
 
 function change(svg, pie, key, radius, arc, outerArc, data) {
 
     console.log(data);
     var color = d3.scale.ordinal()
       .domain(function(d) {return d.data.label})
-      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56"]);//, "#d0743c", "#ff8c00"]);
+      .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
     /* ------- PIE SLICES -------*/
     var slice = svg.select(".slices").selectAll("path.slice")
       .data(pie(data), key);
+
+    var hoverText;
 
     slice.enter()
       .insert("path")
       .style("fill", function(d) { return color(d.data.label); })
       .attr("class", "slice");
+      /*.on("mouseenter", function(d) {
+        //console.log("mousein")
+        hoverText = slice.append("text")
+            .attr("transform", slice.centroid(d))
+            .attr("dy", ".5em")
+            .style("text-anchor", "middle")
+            .style("fill", "blue")
+            .attr("class", "on")
+            .text(d.data.label);
+      })
+
+      .on("mouseout", function(d) {
+               hoverText.remove();
+      });*/
 
     slice   
       .transition().duration(1000)
@@ -53,7 +69,8 @@ function change(svg, pie, key, radius, arc, outerArc, data) {
       .attr("dy", ".35em")
       .text(function(d) {
         return d.data.label;
-      });
+      })
+      .call(wrap, 110);
     
     function midAngle(d){
       return d.startAngle + (d.endAngle - d.startAngle)/2;
@@ -131,6 +148,8 @@ d3PieChart.destroy = function(el) {
 d3PieChart._drawSlices = function(el, data) {
   var svg = d3.select(el)
   .append("svg")
+    .style("width", el.offsetWidth)
+    .style("height", 200)
   .append("g")
 
   svg.append("g")
@@ -161,9 +180,32 @@ d3PieChart._drawSlices = function(el, data) {
   svg.attr("transform", "translate(" + width + "," + radius + ")");
 
   var key = function(d){ return d.data.label; };
-
+  //change(svg, pie, key, radius, arc, outerArc, randomData());
   change(svg, pie, key, radius, arc, outerArc, data);
   console.log(data);
 };
 
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 0.8, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
 module.exports = d3PieChart;
