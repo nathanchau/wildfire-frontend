@@ -69,7 +69,7 @@ var DetailedStats = React.createClass({
 
 var Question = React.createClass({
   render: function() {
-    if(!this.props.questionObj) {
+    if(!this.props.questionObj || !this.props.stats) {
       return null;
     }
     var furtherStats;
@@ -79,6 +79,7 @@ var Question = React.createClass({
             <h4>What the men think</h4>
             <PieChart answerOptions={this.props.questionObj.options} data={this.props.stats.male}/>
             <h4>What the women think</h4>
+            <PieChart answerOptions={this.props.questionObj.options} data={this.props.stats.female}/>
           </div>
           break;
       case "RG":
