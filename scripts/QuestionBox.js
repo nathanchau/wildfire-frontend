@@ -132,7 +132,7 @@ var QuestionList = React.createClass({
 	        	  	fakeIsAnswered.push(-1);
 	        	}
 	  			return (
-	  				<Question index = {index} questionObj={questionObj} onResponse={this.props.onResponse} />
+	  				<Question index = {index} questionObj={questionObj} onResponse={this.props.onResponse} currentUser={this.props.currentUser}/>
 	  			);
 	  		}.bind(this));
 	    }
@@ -282,9 +282,8 @@ var AnswerList = React.createClass({
     }
   },
 	handleClick: function(index) {
-		console.log("isAnswered" + this.state.isAnswered);
 		var clickedAnswer = this.props.answerOptions[index];
-		var JSONObj = { "user": 4, "question": this.props.questionId, "answer": index };
+		var JSONObj = { "user": this.props.currentUser.id, "question": this.props.questionId, "answer": index };
 		var JSONStr = JSON.stringify(JSONObj);
 		console.log('You clicked: ' + this.props.answerOptions[index]);
 		$.ajax({
@@ -351,7 +350,7 @@ var RangeSliderAnswer = React.createClass({
     }
   },
   postAnswer: function() {
-    var JSONObj = { "user": 4, "question": this.props.questionId, "answer": this.state.curValue };
+    var JSONObj = { "user": this.props.currentUser.id, "question": this.props.questionId, "answer": this.state.curValue };
     var JSONStr = JSON.stringify(JSONObj);
     console.log('You chose ' + this.state.curValue);
     $.ajax({
