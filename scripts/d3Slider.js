@@ -100,7 +100,7 @@ d3Slider._drawSlider = function(el, min, max, onSlideFn, startValue, statsAvg, i
     var svg = d3.select(el).selectAll("svg");
     var slider = svg.selectAll("g .slider");
     /* Initialize tooltip */
-    var tip = d3.tip().html("Average: " + Math.round(statsAvg* 100) / 100) // Round to 2 decimal places
+    tip = d3.tip().attr('class', 'd3-tip').html("Average: " + Math.round(statsAvg* 100) / 100) // Round to 2 decimal places
     .offset([-10, 0]);
 
     /* Invoke the tip in the context of slider */
