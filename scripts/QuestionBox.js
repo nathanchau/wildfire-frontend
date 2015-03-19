@@ -8,6 +8,7 @@ var DetailedStats = require('./DetailedStats');
 //Quick view
 var BarChart = require('./BarChart');
 var PieChart = require('./PieChart');
+var RangeSlider = require('./RangeSlider');
 
 var LogInCreatorContent = require('./LogInCreatorContent');
 var QuestionCreatorContent = require('./QuestionCreatorContent');
@@ -237,7 +238,7 @@ var QuestionContent = React.createClass({
             currentUser={this.props.currentUser}
             onResponse={this.props.onResponse} />
           break;
-      /*case "RG":
+      case "RG":
           answerNode=<RangeSliderAnswer
             index={this.props.index}
             questionType={this.props.questionType}
@@ -247,7 +248,7 @@ var QuestionContent = React.createClass({
             isAnswered={this.props.isAnswered} 
             currentUser={this.props.currentUser}
             onResponse={this.props.onResponse} />
-          break;*/
+          break;
       default:
           console.log("Invalid question type = " + this.props.questionType);
           return(null);
@@ -332,6 +333,76 @@ var AnswerList = React.createClass({
 	}
 });
 
+var RangeSliderAnswer = React.createClass({
+  getInitialState: function() {
+    return {
+      statsAvg: null, 
+      curValue: 0,
+      isAnswered: fakeIsAnswered[this.props.index]
+    };
+  },
+  onSlideFn: function(value) {
+    this.setState({curValue: value});
+  },
+  detailsClick: function() {
+    if(this.state.isAnswered >= 0 && this.state.statsAvg) {
+      console.log("going to detailed stats");
+      navigate('/detailedStats/' + this.props.questionId);
+    }
+  },
+  postAnswer: function() {
+    var JSONObj = { "user": 4, "question": this.props.questionId, "answer": this.state.curValue };
+    var JSONStr = JSON.stringify(JSONObj);
+    console.log('You chose ' + this.state.curValue);
+    $.ajax({
+        url: POST_ANSWER_URL,
+        dataType: 'json',
+        type: 'POST',
+        data: JSONStr,
+        success: function(data) {
+          this.props.onResponse(data);
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(url, status, err.toString());
+        }.bind(this)
+      });
+    this.getStats();
+    console.log("after ajax post: fakeIsAnswered = " + fakeIsAnswered);
+  },
+  getStats: function() {
+    $.ajax({
+        url: GET_STATS_URL + this.props.questionId + "/",
+        dataType: 'json',
+        success: function(data) {
+          var response = data.response;
+          console.log(response);
+          if (this.isMounted()) {
+            /*statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];*/
+            fakeIsAnswered[this.props.index] = this.state.curValue;
+            this.setState({isAnswered: fakeIsAnswered[this.props.index], statsAvg: response.avg});
+          }
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(url, status, err.toString());
+          }.bind(this)
+      });
+  },
+  render: function() {
+    return (
+      <div className="answerList" onClick={this.detailsClick}>
+        <RangeSlider
+                min={this.props.rangeMin}
+                max={this.props.rangeMax}
+                onSlideFn = {this.onSlideFn}
+                startValue={0}
+                statsAvg = {this.state.statsAvg}
+                isOnlyStats={false}/>
+        <button className="btn" onClick={this.postAnswer}>{this.state.curValue}</button>
+      </div>
+    );
+  }
+});
+
 var Answer = React.createClass({
 	handleResponse: function(index) {
 		this.props.onResponse();
@@ -348,34 +419,6 @@ var Answer = React.createClass({
 		);
 	}
 });
-
-/*var IfAnswered = React.createClass({
-	render: function() {
-		return (
-			<div className="ifAnswered">
-				<DiscussionCard />
-				<AnalysisCard />
-				<div className="questionBottomMask" />
-			</div>
-		);
-	}
-});
-
-var DiscussionCard = React.createClass({
-	render: function() {
-		return (
-			<div className="discussionCard">Discussion Card</div>
-		);
-	}
-});
-
-var AnalysisCard = React.createClass({
-	render: function() {
-		return (
-			<div className="analysisCard">Analysis Card</div>
-		);
-	}
-});*/
 
 // Question Creator
 var QuestionCreatorContainer = React.createClass({

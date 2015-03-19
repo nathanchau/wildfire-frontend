@@ -44,8 +44,6 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
       .attr("width",  el.offsetWidth)
       .attr("height", (barHeight + gap * 2) * data.length);
 
-  console.log("chart height = " + (barHeight + gap * 2) * data.length);
-
   if(untrimmedStats) {
     var stats = new Array();
     console.log("untrimmedStats = " + untrimmedStats);
@@ -80,8 +78,7 @@ d3BarChart._drawBars = function(el, data, untrimmedStats, isAnswered, on_click_f
     statsText = chart.selectAll("text .stats")
        .data(stats);
   }
-
-  console.log("barchart isAnswered " + isAnswered);
+  
   backgroundBars.enter()
       .append('rect')
       .classed('background', true)

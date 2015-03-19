@@ -4,6 +4,7 @@ require('./base.css');
 var React = require('react');
 var PieChart = require('./PieChart');
 var BarChart = require('./BarChart');
+var RangeSlider = require('./RangeSlider');
 
 var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/question/";
 var GET_STATS_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/stats/";
@@ -67,12 +68,42 @@ var DetailedStats = React.createClass({
 });
 
 var Question = React.createClass({
-  getInitialState: function() {
-    return {questionObj: null};
-  },
   render: function() {
     if(!this.props.questionObj) {
       return null;
+    }
+    var furtherStats;
+    switch(this.props.questionObj.questionType) {
+      case "MC":
+          furtherStats=<div> 
+            <h4>What the men think</h4>
+            <PieChart answerOptions={this.props.questionObj.options} data={this.props.stats.male}/>
+            <h4>What the women think</h4>
+          </div>
+          break;
+      case "RG":
+          furtherStats=<div>
+            <h4>What the men think</h4>
+            <RangeSlider
+                min={this.props.questionObj.options[0]} 
+                max={this.props.questionObj.options[1]} 
+                onSlideFn = {null}
+                startValue = {-1}
+                statsAvg = {this.props.stats.male}
+                isOnlyStats={true}/>
+            <h4>What the women think</h4>
+            <RangeSlider
+                min={this.props.questionObj.options[0]} 
+                max={this.props.questionObj.options[1]} 
+                onSlideFn = {null}
+                startValue = {-1}
+                statsAvg = {this.props.stats.female}
+                isOnlyStats={true}/>
+            </div>
+          break;
+      default:
+          console.log("Invalid question type = " + this.props.questionType);
+          return(null);
     }
     console.log(this.props.questionObj);
     return (
@@ -85,6 +116,7 @@ var Question = React.createClass({
         
         <QuestionContent 
           index={this.props.index}
+          questionType={this.props.questionObj.questionType}
           questionText={this.props.questionObj.text} 
           questionId = {this.props.questionObj.id} 
           answerOptions={this.props.questionObj.options} 
@@ -92,10 +124,7 @@ var Question = React.createClass({
           answers={this.props.questionObj.answers} 
           currentUser={this.props.currentUser}
           stats={this.props.stats} />
-
-        <h3>What the men think</h3>
-        <PieChart answerOptions={this.props.questionObj.options} data={this.props.stats.male}/>
-        <h3>What the women think</h3>
+        {furtherStats}
       </div>
     );
   }
@@ -127,31 +156,47 @@ var QuestionHeader = React.createClass({
 });
 
 var QuestionContent = React.createClass({
-  render: function() {
-    //console.log(this.props.onResponse);
+  render(){
+    var answerNode;
+    switch(this.props.questionType) {
+      case "MC":
+          answerNode=<AnswerList 
+            stats={this.props.stats}
+            index={this.props.index}
+            questionType={this.props.questionType}
+            answerOptions={this.props.answerOptions} 
+            questionId={this.props.questionId} 
+            isAnswered={this.props.isAnswered} 
+            answers={this.props.answers} 
+            currentUser={this.props.currentUser}
+            onResponse={this.props.onResponse} />
+          break;
+      case "RG":
+          answerNode=<RangeSliderAnswer
+            statsAvg={this.props.stats.avg}
+            index={this.props.index}
+            questionType={this.props.questionType}
+            rangeMin={this.props.answerOptions[0]}
+            rangeMax={this.props.answerOptions[1]}
+            questionId={this.props.questionId} 
+            isAnswered={this.props.isAnswered} 
+            currentUser={this.props.currentUser}
+            onResponse={this.props.onResponse} />
+          break;
+      default:
+          console.log("Invalid question type = " + this.props.questionType);
+          return(null);
+    }
     return (
       <div className="questionContent">
         <div className="questionText">{this.props.questionText}</div>
-        <AnswerList 
-          index={this.props.index}
-          answerOptions={this.props.answerOptions} 
-          questionId={this.props.questionId} 
-          isAnswered={this.props.isAnswered} 
-          answers={this.props.answers} 
-          currentUser={this.props.currentUser}
-          stats={this.props.stats} />
-        
+        {answerNode}
       </div>
     );
   }
 });
 
 var AnswerList = React.createClass({
-  getInitialState: function() {
-      return {
-          stats: this.props.stats
-      };
-    },
 
   render: function() {
     if(!this.props.stats) {
@@ -172,4 +217,18 @@ var AnswerList = React.createClass({
   }
 });
 
+var RangeSliderAnswer = React.createClass({
+
+  render: function() {
+    return (
+      <div className="answerList" onClick={this.detailsClick}>
+        <RangeSlider
+                min={this.props.rangeMin}
+                max={this.props.rangeMax}
+                onSlideFn = {null}
+                statsAvg = {this.props.statsAvg}/>
+        </div>
+    );
+  }
+});
 module.exports = DetailedStats;
