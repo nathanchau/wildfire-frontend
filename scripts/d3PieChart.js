@@ -18,7 +18,7 @@ function change(svg, pie, key, radius, arc, outerArc, data) {
     console.log(data);
     var color = d3.scale.ordinal()
       .domain(function(d) {return d.data.label})
-      .range(["#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+      .range(["#2980b9", "#3498db", "#2ecc71", "#1abc9c", "#27ae60"]);
     /* ------- PIE SLICES -------*/
     var slice = svg.select(".slices").selectAll("path.slice")
       .data(pie(data), key);

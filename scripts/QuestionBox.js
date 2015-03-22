@@ -197,10 +197,13 @@ var QuestionHeader = React.createClass({
       classString += ' condensed';
     }
     var avatarUrl;
+    var avatarClassName;
     if (this.props.avatarUrl) {
       avatarUrl = this.props.avatarUrl;
+      avatarClassName = "questionAvatar";
     } else {
-      avatarUrl = "";
+      avatarUrl = "../images/wildfire-logo.png";
+      avatarClassName = "questionAvatar square";
     }
     var categoryText;
     if (typeof this.props.categories != 'undefined' && this.props.categories.length > 0) {
@@ -211,7 +214,7 @@ var QuestionHeader = React.createClass({
     return (
       <div className={classString}>
         <a href={"/profile/"+this.props.id}>
-        <img src={avatarUrl} className="questionAvatar" />
+        <img src={avatarUrl} className={avatarClassName} />
         <div className="questionUsername">{this.props.first_name}</div>
         </a>
         <div className="questionCategory">{categoryText}</div>

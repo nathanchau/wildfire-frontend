@@ -127,9 +127,6 @@ body {
 		width: 45px;
 		left: 45px;
 	}
-	.navLogo {
-		margin-right: 90px;
-	}
 }
 
 .navLogInLink {
@@ -425,7 +422,10 @@ body {
 	width: 34px;
 	height: 34px;
 	border-radius: 50%;
-	background-color: rgb(78,106,164);
+}
+
+.square {
+	border-radius: 0;
 }
 
 .questionUsername {
