@@ -5,6 +5,7 @@ var React = require('react');
 var PieChart = require('./PieChart');
 var BarChart = require('./BarChart');
 var RangeSlider = require('./RangeSlider');
+var NavBar = require('./NavBar');
 
 var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/question/";
 var GET_STATS_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/stats/";
@@ -16,16 +17,34 @@ var DetailedStats = React.createClass({
     //questionObj: React.PropTypes.object
   },
   getInitialState: function() {
-    return {questionObj: null, stats: null};
+    return {questionObj: null, stats: null, currentUser: {username:null, first_name:null, avatarUrl:null, id:null}};
   },
 
   loadQuestionFromServer: function() {
     $.ajax({
         url: GET_QUESTION_URL + this.props.id + "/",
         dataType: 'json',
+        beforeSend: function(xhr) {
+          // Get cookie and set header
+          var cookies = document.cookie.split(";");
+          var tokenValue;
+          for (var i = 0; i < cookies.length; i++) {
+            var eachCookie = cookies[i].split("=");
+            if (eachCookie[0] == "token") {
+              tokenValue = eachCookie[1];
+            }
+          }
+          console.log("Token is " + tokenValue);
+          if (tokenValue) {
+            xhr.setRequestHeader("Authorization", "Token " + tokenValue);
+          }
+        },
         success: function(data) {
           if (this.isMounted()) {
             this.setState({questionObj: data.response});
+            if (data.user) {
+              this.setState({currentUser: data.user});
+            }
           }
         }.bind(this),
         error: function(xhr, status, err) {
@@ -58,9 +77,11 @@ var DetailedStats = React.createClass({
   render: function() {
     return (
       <div className="body">
-        <div className="Title"><img className="logo" src="../images/wildfire-logo.png"/></div>
-        <div className="questionList">
-          <Question questionObj={this.state.questionObj} stats={this.state.stats} />
+        <NavBar currentUser={this.state.currentUser} />
+        <div className="questionBox">
+          <div className="questionList">
+            <Question questionObj={this.state.questionObj} stats={this.state.stats} />
+          </div>
         </div>
       </div>
     );
