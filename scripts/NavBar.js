@@ -1,5 +1,61 @@
 var React = require('react');
 
+// Modal/Popover
+//  Todo: separate this into a separate file?
+//  http://stackoverflow.com/questions/26787198/reactjs-modal-using-javascript-and-css
+
+var ReactLayeredComponentMixin = {
+    componentWillUnmount: function() {
+        this._unrenderLayer();
+        document.body.removeChild(this._target);
+    },
+    componentDidUpdate: function() {
+        this._renderLayer();
+    },
+    componentDidMount: function() {
+        // Appending to the body is easier than managing the z-index of everything on the page.
+        // It's also better for accessibility and makes stacking a snap (since components will stack
+        // in mount order).
+        this._target = document.createElement('div');
+        document.body.appendChild(this._target);
+        this._renderLayer();
+    },
+    _renderLayer: function() {
+        // By calling this method in componentDidMount() and componentDidUpdate(), you're effectively
+        // creating a "wormhole" that funnels React's hierarchical updates through to a DOM node on an
+        // entirely different part of the page.
+        React.renderComponent(this.renderLayer(), this._target);
+    },
+    _unrenderLayer: function() {
+        React.unmountComponentAtNode(this._target);
+    }
+};
+
+var Modal = React.createClass({
+    killClick: function(e) {
+        // clicks on the content shouldn't close the modal
+        e.stopPropagation();
+    },
+    handleBackdropClick: function() {
+        // when you click the background, the user is requesting that the modal gets closed.
+        // note that the modal has no say over whether it actually gets closed. the owner of the
+        // modal owns the state. this just "asks" to be closed.
+        this.props.onRequestClose();
+    },
+    render: function() {
+        return this.transferPropsTo(
+            <div className="modalBackdrop" onClick={this.handleBackdropClick}>
+                <div className="modalContent" onClick={this.killClick}>
+                    {this.props.children}
+                    <img src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfa1/v/t1.0-1/p200x200/1395409_10153074157489050_6030870883043465177_n.jpg?oh=737c9a7043612cf6a6b873f70a145b21&oe=55AA9FA9&__gda__=1438139621_ff62fb748b496f35961d43238b652db4"></img>
+                </div>
+            </div>
+        );
+    }
+});
+
+// Navigation Bar
+
 var NavBar = React.createClass({
 	render: function() {
 		console.log(this.props.currentUser);
@@ -37,8 +93,21 @@ var NavBar = React.createClass({
 });
 
 var SignUpBar = React.createClass({
+    mixins: [ReactLayeredComponentMixin],
+    toggleModal: function() {
+    	console.log("Toggling Modal");
+        this.setState({shown: !this.state.shown});
+    },
+    renderLayer: function() {
+        if (!this.state.shown) {
+            return <span />;
+        }
+        return (
+            <Modal onRequestClose={this.toggleModal}/>
+        );
+    },
 	getInitialState: function() {
-	    return {isExpanded: false};
+	    return {isExpanded: false, shown: false, modalShown: false};
 	},
 	expandSignUp: function() {
 		if (this.isMounted()) {
@@ -67,7 +136,7 @@ var SignUpBar = React.createClass({
 	    //
 	    // These three cases are handled in the callback function.
 	    FB.getLoginStatus(function(response) {
-	      this.statusChangeCallback(response);
+	      //this.statusChangeCallback(response);
 	    }.bind(this));
 	  }.bind(this);
 
@@ -88,7 +157,7 @@ var SignUpBar = React.createClass({
 	  	FB.api('/me', function(response) {
 		  	console.log('Successful login for: ' + response.name);
 		  	console.log(response.email);
-		  	console.log(response.name.replace(/ /g,''));
+		  	console.log(response.name.replace(/ /g,'').toLowerCase());
 		  	console.log(response.first_name);
 		  	console.log(response.last_name);
 		  	console.log(response.age_range);
@@ -97,7 +166,8 @@ var SignUpBar = React.createClass({
 	  	});
 	  	FB.api('/me/picture?height=200&width=200', function(response) {
 	  		console.log(response.data.url);
-	  	});
+			this.toggleModal();
+	  	}.bind(this));
 	},
 
 	// This is called with the results from from FB.getLoginStatus().
