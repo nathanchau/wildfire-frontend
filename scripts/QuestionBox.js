@@ -74,8 +74,8 @@ var QuestionBox = React.createClass({
 		console.log(newData.response.popularQuestions.length);
 		if (this.isMounted()) {
 			console.log("Mounted and setting new state");
-  			this.setState({data: newData});
-  		}
+  		this.setState({data: newData});
+  	}
 	},
   /*NOT BEING USED*/
 	handleResponse: function(data) {
@@ -260,6 +260,7 @@ var QuestionContent = React.createClass({
 			<div className="questionContent">
 				<div className="questionText">{this.props.questionText}</div>
 				{answerNode}
+        {this.props.isAnswered}
 			</div>
 		);
 	}

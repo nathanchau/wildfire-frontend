@@ -104,7 +104,7 @@ var Question = React.createClass({
           </div>
           break;
       case "RG":
-          furtherStats=<div>
+          furtherStats=<div className="furtherStats">
             <h4>What the men think</h4>
             <RangeSlider
                 min={this.props.questionObj.options[0]} 

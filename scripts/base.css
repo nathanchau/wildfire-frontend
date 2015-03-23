@@ -21,6 +21,11 @@ body {
 	margin-bottom: 10px;
 }
 
+.fakeLink {
+	text-decoration: underline;
+	cursor: pointer;
+}
+
 /* Nav Bar -----------------------------------------*/
 .navBarDummy {
 	/* used for spacing */
@@ -173,6 +178,18 @@ body {
 
 .signUpBar a {
 	color: white;
+}
+
+.facebookSignUpButton {
+	color: rgba(24,185,253,1);
+	background-color: white;
+	border: none;
+	border-radius: 4px;
+	font-size: 14px;
+	font-weight: 700;
+	padding: 10px 60px;
+	margin-bottom: 10px;
+	cursor: pointer;
 }
 
 /* Profile -----------------------------------------*/
@@ -633,6 +650,13 @@ body {
 	margin-left: -8px;
 	margin-bottom: -8px;
 	border-radius: 5px;
+}
+
+.furtherStats h4, h4 { /* SUPER HACK - CAN'T FIGURE OUT WHY CAN'T INJECT CLASS, so just use h4*/
+	font-family: "Helvetica Neue", sans-serif;
+	font-weight: 400;
+	font-size: 18;
+	margin: 10px 0px;
 }
 
 svg {

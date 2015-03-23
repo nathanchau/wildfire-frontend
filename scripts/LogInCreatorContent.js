@@ -49,8 +49,8 @@ var LogInCreatorContent = React.createClass({
 		return (
 			<div className={classString}>
 				<form className="logInCreatorForm" name="logInForm" onSubmit={this.handleSubmit} onInput={this.handleInput}>
-				<textarea className="expanding logInCreatorText" name="logInUsername" placeholder="Username &#xF0E7;" rows="1" ref="username"></textarea>
-				<textarea className="expanding logInCreatorText" name="logInPassword" placeholder="Password &#xF21B;" rows="1" ref="password"></textarea>
+				<textarea className="expanding logInCreatorText" name="logInUsername" placeholder="Username" rows="1" ref="username"></textarea>
+				<textarea className="expanding logInCreatorText" name="logInPassword" placeholder="Password" rows="1" ref="password"></textarea>
 
 				<button className="logInCreatorButton" type="submit" value="Log In">Log In <i className="fa fa-tree"></i></button>
 

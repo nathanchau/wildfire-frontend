@@ -37,13 +37,28 @@ var NavBar = React.createClass({
 });
 
 var SignUpBar = React.createClass({
-  render: function() {
-    return(
-      <div className="signUpBar">
-        <p>Not on Wildfire? Sign up, offer your opinion, and find out what others think. <a href="#">Sign up now</a></p>
-      </div>
-    );
-  }
+	getInitialState: function() {
+	    return {isExpanded: false};
+	},
+	expandSignUp: function() {
+		if (this.isMounted()) {
+			this.setState({isExpanded: true});
+		}
+	},
+  	render: function() {
+  		var SignUpNode;
+  		if (this.state.isExpanded) {
+  			SignUpNode = <button className="facebookSignUpButton">Sign up with Facebook <i className="fa fa-facebook-official fa-lg"></i></button>;
+  		} else {
+  			SignUpNode = null;
+  		}
+    	return(
+      		<div className="signUpBar">
+        		<p>Not on Wildfire? Sign up, offer your opinion, and find out what others think. <span onClick={this.expandSignUp} className="fakeLink">Sign up now</span></p>
+        		{SignUpNode}
+      		</div>
+        );
+  	}
 });
 
 module.exports = NavBar;

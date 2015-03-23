@@ -160,7 +160,7 @@ d3PieChart._drawSlices = function(el, data) {
     .attr("class", "lines");
 
   var width = el.offsetWidth/2,
-      height = 450,
+      height = 200,
       radius = Math.min(width, height) / 2;
 
   var pie = d3.layout.pie()
