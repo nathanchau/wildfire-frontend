@@ -42,7 +42,7 @@ var HomePage = React.createClass({
 	render: function() {
 		return (
 			<div className="body">
-				<NavBar currentUser={this.state.currentUser} />
+				<NavBar currentUser={this.state.currentUser} onLogIn={this.handleLogIn}/>
 				<QuestionBox url={GET_QUESTION_URL} pollInterval={200000} onLogIn={this.handleLogIn} currentUser={this.state.currentUser} />
 			</div>
     	);

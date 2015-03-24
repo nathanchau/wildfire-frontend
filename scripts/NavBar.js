@@ -32,6 +32,70 @@ var ReactLayeredComponentMixin = {
 };
 
 var Modal = React.createClass({
+	getInitialState() {
+		return {isValidated:false};
+	},
+	handleInput(e) {
+		if (this.refs.password.getDOMNode().value != '') {
+			this.setState({isValidated: true});
+		} else {
+			this.setState({isValidated: false});
+		}
+	},
+	handleSubmit(e) {
+		// Create the new user
+		e.preventDefault();
+		if (this.state.isValidated) {
+			this.setState({isValidated: false});
+
+			var username = this.refs.username.getDOMNode().value;
+			var email = this.refs.email.getDOMNode().value;
+			var password = this.refs.password.getDOMNode().value;
+			var first_name = this.props.userResponse.first_name;
+			var last_name = this.props.userResponse.last_name;
+			var gender;
+			if (this.props.userResponse.gender == "male") {
+				gender = "M";
+			} else { // this.props.userResponse.gender == "female"
+				gender = "F";
+			}
+			var region = this.props.userResponse.locale;
+			var avatarUrl = this.props.userPictureURL;
+			var JSONObj = {"username": username, "email": email, "first_name": first_name, "last_name": last_name, "password": password, "gender": gender, "region": region, "avatarUrl": avatarUrl};
+			var JSONStr = JSON.stringify(JSONObj);
+			var reqData = "username=" + username + "&password=" + password;
+
+			$.ajax({
+	        	url: "https://hidden-castle-6417.herokuapp.com/wildfire/users/create/",
+	        	dataType: 'json',
+	        	type: 'POST',
+	        	data: JSONStr,
+	        	success: function(data) {
+	          		// If successful, log the user in
+	          		console.log("logging user in now...");
+	          		this.handleLogin(reqData);
+	        	}.bind(this),
+	        	error: function(xhr, status, err) {
+	        	  	console.error(status, err.toString());
+	        	}.bind(this)
+	      	});
+		}
+	},
+	handleLogin(reqData) {
+		$.ajax({
+        	url: "https://hidden-castle-6417.herokuapp.com/wildfire/login/",
+        	dataType: 'HTML',
+        	type: 'POST',
+        	data: reqData,
+        	success: function(data) {
+          		//this.setState({data: data});
+          		this.props.onLogIn(JSON.parse(data));
+        	}.bind(this),
+        	error: function(xhr, status, err) {
+        	  	console.error(status, err.toString());
+        	}.bind(this)
+      	});
+	},
     killClick: function(e) {
         // clicks on the content shouldn't close the modal
         e.stopPropagation();
@@ -42,12 +106,29 @@ var Modal = React.createClass({
         // modal owns the state. this just "asks" to be closed.
         this.props.onRequestClose();
     },
+    componentDidMount:function() {
+		document.modalForm.password.focus();
+    },
     render: function() {
         return this.transferPropsTo(
             <div className="modalBackdrop" onClick={this.handleBackdropClick}>
                 <div className="modalContent" onClick={this.killClick}>
                     {this.props.children}
-                    <img src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfa1/v/t1.0-1/p200x200/1395409_10153074157489050_6030870883043465177_n.jpg?oh=737c9a7043612cf6a6b873f70a145b21&oe=55AA9FA9&__gda__=1438139621_ff62fb748b496f35961d43238b652db4"></img>
+                    <img className="modalAvatarImage" src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfa1/v/t1.0-1/p200x200/1395409_10153074157489050_6030870883043465177_n.jpg?oh=737c9a7043612cf6a6b873f70a145b21&oe=55AA9FA9&__gda__=1438139621_ff62fb748b496f35961d43238b652db4"></img>
+                    <p className="modalTitle">{this.props.userResponse.name}</p>
+                    <form className="modalForm" name="modalForm" onSubmit={this.handleSubmit} onInput={this.handleInput}>
+	                    <div className="modalFormElement">
+		                    <span className="modalHint">Username </span>
+		                    <input className="modalInput" type="text" name="username" ref="username" placeholder="Choose a username" defaultValue={this.props.userResponse.name.replace(/ /g,'').toLowerCase()}></input>
+	                    </div><div className="modalFormElement">
+		                    <span className="modalHint">Email </span>
+		                    <input className="modalInput" type="text" name="email" ref="email" placeholder="Enter your email" defaultValue={this.props.userResponse.email}></input>
+	                    </div><div className="modalFormElement">
+		                    <span className="modalHint">Password </span>
+		                    <input className="modalInput" type="password" name="password" ref="password" placeholder="Enter a password"></input>
+	                    </div>
+	                    <button type="submit" className="modalSubmitButton">Create my account!</button>
+                    </form>
                 </div>
             </div>
         );
@@ -62,7 +143,7 @@ var NavBar = React.createClass({
 		var SignUpNode;
 		var TopRightNode;
 		if (!this.props.currentUser.id) {
-			SignUpNode = <SignUpBar />;
+			SignUpNode = <SignUpBar onLogIn={this.props.onLogIn}/>;
 			TopRightNode = <button className="navLogInLink">Log In</button>
 		} else {
 			TopRightNode = <a href={"/profile/"+this.props.currentUser.id} className="navProfileAvatarLink"><span><img className="navProfileAvatarImage" src={this.props.currentUser.avatarUrl}/></span></a>;
@@ -103,11 +184,11 @@ var SignUpBar = React.createClass({
             return <span />;
         }
         return (
-            <Modal onRequestClose={this.toggleModal}/>
+            <Modal onRequestClose={this.toggleModal} userResponse={this.state.userResponse} userPictureURL={this.state.userPictureURL} onLogIn={this.props.onLogIn}/>
         );
     },
 	getInitialState: function() {
-	    return {isExpanded: false, shown: false, modalShown: false};
+	    return {isExpanded: false, shown: false, modalShown: false, userResponse:{email:null,name:null,first_name:null,last_name:null,age_range:null,gender:null,locale:null}, userPictureURL:null};
 	},
 	expandSignUp: function() {
 		if (this.isMounted()) {
@@ -163,10 +244,19 @@ var SignUpBar = React.createClass({
 		  	console.log(response.age_range);
 		  	console.log(response.gender);
 		  	console.log(response.locale);
-	  	});
-	  	FB.api('/me/picture?height=200&width=200', function(response) {
-	  		console.log(response.data.url);
-			this.toggleModal();
+		  	if (this.isMounted()) {
+		  		this.setState({userResponse:response});
+		  	}
+		  	FB.api('/me/picture?height=200&width=200', function(response) {
+		  		console.log(response.data.url);
+			  	if (this.isMounted()) {
+			  		this.setState({userPictureURL:response.data.url});
+			  	}
+				this.toggleModal();
+				FB.logout(function(response) {
+					// User should now be logged out
+				});
+		  	}.bind(this));
 	  	}.bind(this));
 	},
 
@@ -184,12 +274,12 @@ var SignUpBar = React.createClass({
 	  } else if (response.status === 'not_authorized') {
 	    // The person is logged into Facebook, but not your app.
 	    //document.getElementById('status').innerHTML = 'Please log ' +
-	      'into this app.';
+	    //  'into this app.';
 	  } else {
 	    // The person is not logged into Facebook, so we're not sure if
 	    // they are logged into this app or not.
 	    //document.getElementById('status').innerHTML = 'Please log ' +
-	    'into Facebook.';
+	    //'into Facebook.';
 	  }
 	},
 
@@ -203,7 +293,10 @@ var SignUpBar = React.createClass({
 	},
 
 	handleClick: function() {
-	  FB.login(this.checkLoginState(), {scope: 'public_profile,email'});
+	  //FB.login(this.checkLoginState(), {scope: 'public_profile,email'});
+	  FB.login(function(response) {
+	  	this.checkLoginState();
+	  }.bind(this), {scope: 'public_profile,email'});
 	},
   	render: function() {
   		var SignUpNode;

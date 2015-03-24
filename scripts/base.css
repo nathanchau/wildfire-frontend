@@ -773,7 +773,7 @@ polyline{
 /* Modal ----------------------------------*/
 .modalBackdrop {
 	background-color: rgba(0,0,0,0.5);
-	position: absolute;
+	position: fixed;
 	width: 100%;
 	height: 100%;
 	top: 0px;
@@ -781,10 +781,81 @@ polyline{
 }
 
 .modalContent {
-	max-width: 400px;
-	background-color: white;
+	position: relative;
+	max-width: 280px;
+	background-color: rgba(255,255,255,0.95);
 	margin: auto;
-	margin-top: 40px;
+	margin-top: 20%;
 	border-radius: 4px;
 	padding: 0px 10px;
+	text-align: center;
+}
+
+@media (orientation: landscape) {
+	.modalContent {
+		margin-top: 10%;
+	}
+}
+
+.modalAvatarImage {
+	width: 120px;
+	height: 120px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: rgba(255,255,255,0.4);
+	border-radius: 60px;
+	margin-top: -30px;
+}
+
+.modalTitle {
+	font-size: 20px;
+	font-weight: 500;
+	margin-top: 10px;
+	margin-bottom: 5px;
+}
+
+.modalForm {
+	border-top: solid;
+	border-color: rgba(120,120,120,0.1);
+	border-width: 1px;
+	position: relative;
+	width: 100%;
+	margin-top: 6px;
+	padding-top: 5px;
+}
+
+.modalFormElement {
+	position: relative;
+	margin: 5px;
+}
+
+.modalHint {
+	display: inline-block;
+	width: 130px;
+	text-align: right;
+	padding-right: 6px;
+	color: rgb(80,80,80);
+}
+
+.modalInput {
+	width: 130px;
+	outline: none;
+	border: none;
+	background-color: transparent;
+	font-family: "Helvetica Neue", sans-serif;
+	font-size: 14px;
+}
+
+.modalSubmitButton {
+	color: white;
+	background-color: rgba(24,185,253,1);
+	font-family: "Helvetica Neue", sans-serif;
+	font-size: 14px;
+	font-weight: 700;
+	border: none;
+	border-radius: 5px;
+	padding: 10px 60px;
+	margin-top: 5px;
+	margin-bottom: 15px;
+
 }
