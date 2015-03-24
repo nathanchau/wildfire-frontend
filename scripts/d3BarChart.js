@@ -29,12 +29,9 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
     console.log("answerOptions is null");
     return;
   }
-  console.log("usersAnswer " + usersAnswer);
-  console.log("answerOptions " + answerOptions);
-  console.log("untrimmedStats " + untrimmedStats);
 
   var gap = 2; // Pixel space between bars and with textWidth
-  var textWidth = 40; 
+  var textGap = 5; 
   var barWidth = el.offsetWidth - 20;
   var barHeight = 30;
 
@@ -48,12 +45,10 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
 
   if(untrimmedStats) {
     var stats = new Array();
-    console.log("untrimmedStats = " + untrimmedStats);
     // Truncate stats as necessary to match answerOptions.length
     for (var i = 0; i < answerOptions.length; i++) {
       stats[i] = untrimmedStats[i];
     }
-    console.log("stats = " + stats);
     // Scale for normalizing stats out of 100
     var statsSum = d3.sum(stats);
     var statsNormScale = d3.scale.linear()
@@ -86,9 +81,9 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
       .attr('width', barWidth)
       .attr('height', barHeight)
       .attr('fill', 'rgb(244, 244, 244)')
-      .on("mouseover", !usersAnswer ? function() {
+      .on("mouseover", function() {
         d3.select(this).style("fill", "orange");
-      }: null)
+      })
       .on("mouseout", function() {
         d3.select(this).style("fill", "rgb(244, 244, 244)")
       })
@@ -121,7 +116,7 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
   }
 
   // Disable mouseover function
-  if(untrimmedStats) {
+  if(usersAnswer) {
     backgroundBars.on("mouseover", function() {null;})
     .on("mouseout", function() {null;});
   }
@@ -140,11 +135,11 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
   statsText.enter()
     .append("text")
       .classed('stats', true)
-      .attr("x", barWidth - textWidth/2) 
+      .attr("x", barWidth - textGap) 
       .attr("y", function(d, i){ return (i+0.5)*(barHeight + 2*gap)} )
       .attr("dx", 0)
       .attr("dy", ".36em")
-      .attr("text-anchor", "middle")
+      .attr("text-anchor", "end")
       .text(function(d, i) { return statsNormScale(stats[i]) + "%";})
       .style("visibility", "hidden");
 
@@ -171,7 +166,7 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
       .transition()
         .duration(250)
       .attr("x",      0)
-      .attr("width", el.offsetWidth)
+      .attr("width", 0)
       .remove();
 };
 

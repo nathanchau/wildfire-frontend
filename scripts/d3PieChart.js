@@ -47,6 +47,9 @@ function change(svg, pie, key, radius, arc, outerArc, data) {
     slice   
       .transition().duration(1000)
       .attrTween("d", function(d) {
+        if(d.data.value <= 0) {
+          return null;
+        }
         this._current = this._current || d;
         var interpolate = d3.interpolate(this._current, d);
         this._current = interpolate(0);
@@ -68,6 +71,9 @@ function change(svg, pie, key, radius, arc, outerArc, data) {
       .attr("font-size", "10px")
       .attr("dy", ".35em")
       .text(function(d) {
+        if(d.data.value <= 0) {
+          return null;
+        }
         return d.data.label;
       })
       .call(wrap, 110);
@@ -78,6 +84,9 @@ function change(svg, pie, key, radius, arc, outerArc, data) {
 
     text.transition().duration(1000)
       .attrTween("transform", function(d) {
+        if(d.data.value <= 0) {
+          return null;
+        }
         this._current = this._current || d;
         var interpolate = d3.interpolate(this._current, d);
         this._current = interpolate(0);
@@ -111,6 +120,9 @@ function change(svg, pie, key, radius, arc, outerArc, data) {
 
     polyline.transition().duration(1000)
       .attrTween("points", function(d){
+        if(d.data.value <= 0) {
+          return null;
+        }
         this._current = this._current || d;
         var interpolate = d3.interpolate(this._current, d);
         this._current = interpolate(0);

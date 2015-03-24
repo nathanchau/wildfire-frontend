@@ -16,7 +16,7 @@ var PieChart = React.createClass({
 
   componentDidUpdate: function() {
     var el = this.getDOMNode();
-    d3PieChart.update(el, this.getChartState());
+    //d3PieChart.update(el, this.getChartState());
   },
 
   getChartState: function() {

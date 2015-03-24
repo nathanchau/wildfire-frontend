@@ -221,7 +221,7 @@ var QuestionHeader = React.createClass({
       <div className={classString}>
         <a href={"/profile/"+this.props.id}>
         <img src={avatarUrl} className={avatarClassName} />
-        <div className="questionUsername">{this.props.first_name}</div>
+        <div className="questionUsername">{this.props.firstName}</div>
         </a>
         <div className="questionCategory">{categoryText}</div>
         <div className="questionScore">{this.props.score}</div>
