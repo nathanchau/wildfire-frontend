@@ -6,7 +6,7 @@ var BarChart = React.createClass({
   propTypes: {
     data: React.PropTypes.array,
     stats: React.PropTypes.array,
-    usersAnswer: React.PropTypes.number,
+    usersAnswer: React.PropTypes.object,
     on_click_fn: React.PropTypes.func
   },
 

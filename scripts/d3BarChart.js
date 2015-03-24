@@ -41,7 +41,7 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
   chart
       .attr("class",  "chart")
       .attr("width",  el.offsetWidth)
-      .attr("height", (barHeight + gap * 2) * answerOptions.length);
+      .attr("height", (barHeight + gap * 2) * answerOptions.length + 2*gap);
 
   if(untrimmedStats) {
     var stats = new Array();
@@ -106,19 +106,18 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
   // If this question has been answered, fill the mult choice option with a green color
   if(usersAnswer) {
     bars.attr('fill', function(d, i) {
-      if(i == usersAnswer) {
+      if(i == usersAnswer.answer) { // A pleasant green
         return "rgb(46, 204, 113)";
       } else {
         return 'deepskyblue';
       }
-    // Kill mouseover and mouseout actions
     });
   }
 
   // Disable mouseover function
   if(usersAnswer) {
-    backgroundBars.on("mouseover", function() {null;})
-    .on("mouseout", function() {null;});
+    backgroundBars.on("mouseover", function() {return null;})
+    .on("mouseout", function() {return null;});
   }
   
   // Add text labels

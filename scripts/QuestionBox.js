@@ -24,8 +24,6 @@ var piedata = [ {name: "one", value: 10375},
       {name: "four", value:  516},
       {name: "five", value:  491} ];
 
-var fakeIsAnswered = [];
-
 var QuestionBox = React.createClass({
   getInitialState: function() {
     return {data: []};
@@ -85,6 +83,21 @@ var QuestionBox = React.createClass({
         dataType: 'json',
         type: 'POST',
         data: JSONStr,
+        beforeSend: function(xhr) {
+          // Get cookie and set header
+          var cookies = document.cookie.split(";");
+          var tokenValue;
+          for (var i = 0; i < cookies.length; i++) {
+            var eachCookie = cookies[i].split("=");
+            if (eachCookie[0] == "token") {
+              tokenValue = eachCookie[1];
+            }
+          }
+          console.log("Token is " + tokenValue);
+          if (tokenValue) {
+            xhr.setRequestHeader("Authorization", "Token " + tokenValue);
+          }
+        },
         success: function(data) {
           var newData = this.state.data;
           newData.response.popularQuestions.forEach(function(question) {
@@ -92,7 +105,7 @@ var QuestionBox = React.createClass({
               console.log("Replacing old answers for question " + question.id)
               question.answers=data.response.answers;
               question.quick=data.response.quick;
-              question.isAnswered = true;
+              question.usersAnswer=data.response.usersAnswer;
             }
           });
           this.getStats(questionId, newData);
@@ -161,12 +174,8 @@ var QuestionList = React.createClass({
 	render: function() {
 	    if(this.props.data.response) {
 	  		var questionNodes = this.props.data.response.popularQuestions.map(function (question, index) {
-          // TODO KILL THIS
-	        	if(fakeIsAnswered.length < this.props.data.response.popularQuestions.length) {
-	        	  	fakeIsAnswered.push(-1);
-	        	}
 	  			return (
-	  				<Question onResponse={this.props.onResponse} index={index} questionText={question.text} questionType={question.questionType} questionId = {question.id} username={question.asker.username} firstName={question.asker.first_name} answerList={question.options} answerUrl={POST_ANSWER_URL} avatarURL={question.asker.avatarUrl} isAnswered={question.isAnswered} answerOptions={question.options} currentUser={this.props.currentUser} categories={question.categories} stats={question.quick} usersAnswer={question.usersAnswer?question.usersAnswer.answer : null}/>
+	  				<Question onResponse={this.props.onResponse} index={index} questionText={question.text} questionType={question.questionType} questionId = {question.id} username={question.asker.username} firstName={question.asker.first_name} answerList={question.options} answerUrl={POST_ANSWER_URL} avatarUrl={question.asker.avatarUrl} answerOptions={question.options} currentUser={this.props.currentUser} categories={question.categories} stats={question.quick} usersAnswer={question.usersAnswer} answers={question.answers}/>
 	  			);
 	  		}.bind(this));
 	    }
@@ -181,16 +190,12 @@ var QuestionList = React.createClass({
 var Question = React.createClass({
 	render: function() {
 		var answeredNode;
-    //console.log(this.state.questionObj.asker);
-		if (this.props.isAnswered) {
-			//answeredNode = <IfAnswered />;
-		}
 		return (
 			<div className="question">
-			  <QuestionHeader QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score={this.props.answerOptions.length} categories={this.props.categories}/>
+			  <QuestionHeader QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} categories={this.props.categories}/>
 				
         <QuestionContent 
-          index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} isAnswered={this.props.isAnswered} answerOptions={this.props.answerOptions} currentUser={this.props.currentUser} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
+          index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} answerOptions={this.props.answerOptions} currentUser={this.props.currentUser} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
 			</div>
 		);
 	}
@@ -241,8 +246,7 @@ var QuestionContent = React.createClass({
             index={this.props.index}
             questionType={this.props.questionType}
             answerOptions={this.props.answerOptions} 
-            questionId={this.props.questionId} 
-            isAnswered={this.props.isAnswered} 
+            questionId={this.props.questionId}
             answers={this.props.answers} 
             currentUser={this.props.currentUser}
             stats={this.props.stats}
@@ -255,8 +259,7 @@ var QuestionContent = React.createClass({
             questionType={this.props.questionType}
             rangeMin={this.props.answerOptions[0]}
             rangeMax={this.props.answerOptions[1]}
-            questionId={this.props.questionId} 
-            isAnswered={this.props.isAnswered} 
+            questionId={this.props.questionId}
             currentUser={this.props.currentUser}
             onResponse={this.props.onResponse} />
           break;
@@ -268,7 +271,6 @@ var QuestionContent = React.createClass({
 			<div className="questionContent">
 				<div className="questionText">{this.props.questionText}</div>
 				{answerNode}
-        {this.props.isAnswered}
 			</div>
 		);
 	}
@@ -276,7 +278,7 @@ var QuestionContent = React.createClass({
 
 var AnswerList = React.createClass({
   detailsClick: function() {
-    if(this.props.isAnswered >= 0 && this.props.stats) {
+    if(this.props.stats) {
       console.log("going to detailed stats");
       navigate('/detailedStats/' + this.props.questionId);
     }
@@ -290,12 +292,13 @@ var AnswerList = React.createClass({
       stats=[this.props.stats.option1, this.props.stats.option2, this.props.stats.option3, this.props.stats.option4, this.props.stats.option5];
     }
 		return (
-			<div className="answerList" onClick={this.detailsClick}>
+			<div className="answerList">
 				<BarChart 
                 data={this.props.answerOptions}
                 stats={stats}
                 usersAnswer={this.props.usersAnswer}
                 on_click_fn={this.handleClick}/>
+        {this.props.usersAnswer ? <button onClick={this.detailsClick}>See statistics</button> : null}
 			</div>
 		);
 	}
@@ -306,14 +309,13 @@ var RangeSliderAnswer = React.createClass({
     return {
       statsAvg: null, 
       curValue: 0,
-      isAnswered: fakeIsAnswered[this.props.index]
     };
   },
   onSlideFn: function(value) {
     this.setState({curValue: value});
   },
   detailsClick: function() {
-    if(this.state.isAnswered >= 0 && this.state.statsAvg) {
+    if(this.state.statsAvg) {
       console.log("going to detailed stats");
       navigate('/detailedStats/' + this.props.questionId);
     }
@@ -335,7 +337,6 @@ var RangeSliderAnswer = React.createClass({
         }.bind(this)
       });
     this.getStats();
-    console.log("after ajax post: fakeIsAnswered = " + fakeIsAnswered);
   },
   getStats: function() {
     $.ajax({
@@ -346,8 +347,7 @@ var RangeSliderAnswer = React.createClass({
           console.log(response);
           if (this.isMounted()) {
             /*statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];*/
-            fakeIsAnswered[this.props.index] = this.state.curValue;
-            this.setState({isAnswered: fakeIsAnswered[this.props.index], statsAvg: response.avg});
+            this.setState({statsAvg: response.avg});
           }
         }.bind(this),
         error: function(xhr, status, err) {
@@ -369,23 +369,6 @@ var RangeSliderAnswer = React.createClass({
       </div>
     );
   }
-});
-
-var Answer = React.createClass({
-	handleResponse: function(index) {
-		this.props.onResponse();
-	},
-	render: function() {
-		var answer;
-		if (this.props.isAnswered) {
-			answer = <li><div className="answered"><p onClick={this.handleResponse.bind(this,this.props.index)}>{this.props.answerText}</p></div></li>;
-		} else {
-			answer = <li><p onClick={this.handleResponse.bind(this,this.props.index)}>{this.props.answerText}</p></li>;
-		}
-		return (
-			<div>{answer}</div>
-		);
-	}
 });
 
 // Question Creator
