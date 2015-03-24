@@ -77,25 +77,54 @@ var QuestionBox = React.createClass({
   		this.setState({data: newData});
   	}
 	},
-  /*NOT BEING USED*/
-	handleResponse: function(data) {
-		//console.log('(In QuestionBox) Answer: ' + data.response.answer); //TODO: server NOT ANSWERING YET
-		// Get current data, add new answer, set state
-		var newData = this.state.data;
-
-    if(newData.response) {
-  		newData.response.forEach(function(question) {
-  			if(question.id == data.question) {
-  				console.log('Pushed to ' + question.id)
-  				question.answers.push(data);
-  				question.isAnswered = true;
-  			}
-  		});
-  		if (this.isMounted()) {
-    		//this.setState({data: newData});
-    	}
+	handleResponse: function(questionId, answer, currentUserId) {var JSONObj = { "user": currentUserId, "question": questionId, "answer": answer };
+    var JSONStr = JSON.stringify(JSONObj);
+    console.log('User ' + currentUserId + ' answered question ' + questionId + ' with answer ' + answer);
+    $.ajax({
+        url: POST_ANSWER_URL,
+        dataType: 'json',
+        type: 'POST',
+        data: JSONStr,
+        success: function(data) {
+          var newData = this.state.data;
+          newData.response.popularQuestions.forEach(function(question) {
+            if(question.id == questionId) {
+              console.log("Replacing old answers for question " + question.id)
+              question.answers=data.response.answers;
+              question.quick=data.response.quick;
+              question.isAnswered = true;
+            }
+          });
+          this.getStats(questionId, newData);
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(url, status, err.toString());
+        }.bind(this)
+      });
+  },
+  getStats: function(questionId, dirtyData) {
+    var newData = dirtyData;
+    $.ajax({
+        url: GET_STATS_URL + questionId + "/",
+        dataType: 'json',
+        success: function(data) {
+          var response = data.response;
+          newData.response.popularQuestions.forEach(function(question) {
+            if(question.id == questionId) {
+              question.stats=response;
+            }
+          });
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(url, status, err.toString());
+          }.bind(this)
+      });
+    if (this.isMounted()) {
+      this.setState({data: newData});
+      console.log("newData")
+      console.log(newData);
     }
-	},
+  },
 	componentDidMount: function() {
   	this.loadQuestionsFromServer();
   	setInterval(this.loadQuestionsFromServer, this.props.pollInterval);
@@ -125,14 +154,19 @@ var QuestionBox = React.createClass({
 });
 
 var QuestionList = React.createClass({
+  componentDidUpdate: function() {
+    console.log("qlist did update");
+    console.log(this.props.data);
+  },
 	render: function() {
 	    if(this.props.data.response) {
-	  		var questionNodes = this.props.data.response.popularQuestions.map(function (questionObj, index) {
+	  		var questionNodes = this.props.data.response.popularQuestions.map(function (question, index) {
+          // TODO KILL THIS
 	        	if(fakeIsAnswered.length < this.props.data.response.popularQuestions.length) {
 	        	  	fakeIsAnswered.push(-1);
 	        	}
 	  			return (
-	  				<Question index = {index} questionObj={questionObj} onResponse={this.props.onResponse} currentUser={this.props.currentUser}/>
+	  				<Question onResponse={this.props.onResponse} index={index} questionText={question.text} questionType={question.questionType} questionId = {question.id} username={question.asker.username} firstName={question.asker.first_name} answerList={question.options} answerUrl={POST_ANSWER_URL} avatarURL={question.asker.avatarUrl} isAnswered={question.isAnswered} answerOptions={question.options} currentUser={this.props.currentUser} categories={question.categories} stats={question.quick} usersAnswer={question.usersAnswer?question.usersAnswer.answer : null}/>
 	  			);
 	  		}.bind(this));
 	    }
@@ -145,46 +179,18 @@ var QuestionList = React.createClass({
 });
 
 var Question = React.createClass({
-  getInitialState: function() {
-    return {questionObj: this.props.questionObj};
-  },
-  handleResponse: function(data) {
-    //console.log('(In QuestionBox) Answer: ' + data.response.answer); //TODO: server NOT ANSWERING YET
-    // Get current data, add new answer, set state
-    var newData = this.state.questionObj;
-
-    if(newData) {
-      console.log('Pushed to ' + this.state.questionObj.id);
-      this.state.questionObj.answers.push(data);
-    }
-    if (this.isMounted()) {
-      //this.setState({questionObj: newData});
-    }
-  },
 	render: function() {
 		var answeredNode;
     //console.log(this.state.questionObj.asker);
-		if (this.state.questionObj.isAnswered) {
+		if (this.props.isAnswered) {
 			//answeredNode = <IfAnswered />;
 		}
 		return (
 			<div className="question">
-			  <QuestionHeader 
-          avatarUrl={this.state.questionObj.asker.avatarUrl} 
-          username={this.state.questionObj.asker.username} 
-          first_name={this.state.questionObj.asker.first_name} 
-          score={this.state.questionObj.answers.length} id={this.state.questionObj.asker.id} categories={this.state.questionObj.categories}/>
+			  <QuestionHeader QuestionHeader avatarURL={this.props.avatarURL} username={this.props.username} firstName={this.props.firstName} score={this.props.answerOptions.length} categories={this.props.categories}/>
 				
         <QuestionContent 
-          index={this.props.index}
-          questionType={this.state.questionObj.questionType}
-          questionText={this.state.questionObj.text} 
-          questionId = {this.state.questionObj.id} 
-          answerOptions={this.state.questionObj.options} 
-          isAnswered={this.state.questionObj.isAnswered} 
-          answers={this.state.questionObj.answers} 
-          currentUser={this.props.currentUser}
-          onResponse={this.handleResponse} />
+          index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} isAnswered={this.props.isAnswered} answerOptions={this.props.answerOptions} currentUser={this.props.currentUser} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
 			</div>
 		);
 	}
@@ -239,7 +245,9 @@ var QuestionContent = React.createClass({
             isAnswered={this.props.isAnswered} 
             answers={this.props.answers} 
             currentUser={this.props.currentUser}
-            onResponse={this.props.onResponse} />
+            stats={this.props.stats}
+            onResponse={this.props.onResponse} 
+            usersAnswer={this.props.usersAnswer}/>
           break;
       case "RG":
           answerNode=<RangeSliderAnswer
@@ -267,69 +275,26 @@ var QuestionContent = React.createClass({
 });
 
 var AnswerList = React.createClass({
-  getInitialState: function() {
-    return {
-        stats: null,
-        piedata: piedata,
-        isAnswered: fakeIsAnswered[this.props.index]
-    };
-  },
-  componentDidMount: function() {
-  	if(this.state.isAnswered >= 0) {
-  		this.getStats(this.state.isAnswered);
-  	}
-  },
   detailsClick: function() {
-    if(this.state.isAnswered >= 0 && this.state.stats) {
+    if(this.props.isAnswered >= 0 && this.props.stats) {
       console.log("going to detailed stats");
       navigate('/detailedStats/' + this.props.questionId);
     }
   },
 	handleClick: function(index) {
-		var clickedAnswer = this.props.answerOptions[index];
-		var JSONObj = { "user": this.props.currentUser.id, "question": this.props.questionId, "answer": index };
-		var JSONStr = JSON.stringify(JSONObj);
-		console.log('You clicked: ' + this.props.answerOptions[index]);
-		$.ajax({
-        url: POST_ANSWER_URL,
-        dataType: 'json',
-        type: 'POST',
-        data: JSONStr,
-        success: function(data) {
-        	this.props.onResponse(data);
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
-        }.bind(this)
-      });
-		this.getStats(index);
-    console.log("after ajax post: fakeIsAnswered = " + fakeIsAnswered);
-	},
-	getStats: function(index) {
-		$.ajax({
-        url: GET_STATS_URL + this.props.questionId + "/",
-        dataType: 'json',
-        success: function(data) {
-          var response = data.response;
-          if (this.isMounted()) {
-            statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
-            fakeIsAnswered[this.props.index] = index;
-            this.setState({isAnswered: fakeIsAnswered[this.props.index], stats: statsArray});
-          }
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
-          }.bind(this)
-      });
+    this.props.onResponse(this.props.questionId, index, this.props.currentUser.id);
 	},
 	render: function() {
-    //console.log(this.props.answerOptions);
+    var stats;
+    if(this.props.stats) {
+      stats=[this.props.stats.option1, this.props.stats.option2, this.props.stats.option3, this.props.stats.option4, this.props.stats.option5];
+    }
 		return (
 			<div className="answerList" onClick={this.detailsClick}>
 				<BarChart 
                 data={this.props.answerOptions}
-                stats={this.state.stats}
-                isAnswered={fakeIsAnswered[this.props.index]}
+                stats={stats}
+                usersAnswer={this.props.usersAnswer}
                 on_click_fn={this.handleClick}/>
 			</div>
 		);
