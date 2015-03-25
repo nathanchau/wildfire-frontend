@@ -30,6 +30,7 @@ var QuestionBox = React.createClass({
   },
 	loadQuestionsFromServer: function() {
 	console.log("loading questions from server");
+  console.log("Temp Token is " + this.props.tempToken);
     $.ajax({
       	url: this.props.url,
       	dataType: 'json',
@@ -46,8 +47,11 @@ var QuestionBox = React.createClass({
       		console.log("Token is " + tokenValue);
       		if (tokenValue) {
       			xhr.setRequestHeader("Authorization", "Token " + tokenValue);
-      		}
-      	},
+      		} else if (this.props.tempToken) {
+            // Immediately after logging in, cookies not accessible - allows us to authenticate in this case
+            xhr.setRequestHeader("Authorization", "Token " + this.props.tempToken);
+          }
+      	}.bind(this),
       	success: function(data) {
       		if (this.isMounted()) {
         		this.setState({data: data});
@@ -115,6 +119,11 @@ var QuestionBox = React.createClass({
         }.bind(this)
       });
   },
+  handleLogIn: function(data) {
+    console.log("(In QuestionBox) Set Token");
+    this.props.onLogIn(data);
+    this.loadQuestionsFromServer();
+  },
   getStats: function(questionId, dirtyData) {
     var newData = dirtyData;
     $.ajax({
@@ -140,7 +149,7 @@ var QuestionBox = React.createClass({
   },
 	componentDidMount: function() {
   	this.loadQuestionsFromServer();
-  	setInterval(this.loadQuestionsFromServer, this.props.pollInterval);
+  	//setInterval(this.loadQuestionsFromServer, this.props.pollInterval);
 	},
 	render: function() {
 		var headerNode;
@@ -155,7 +164,7 @@ var QuestionBox = React.createClass({
 		}
 		return (
 			<div className="questionBox">
-				<LogInContainer isHidden={logInHidden} onLogIn={this.props.onLogIn}/>
+				<LogInContainer isHidden={logInHidden} onLogIn={this.handleLogIn}/>
 				<QuestionCreatorContainer isHidden={askHidden} onQuestionCreation={this.handleQuestionCreation} currentUser={this.props.currentUser} />
 				<QuestionList 
           data={this.state.data} 
@@ -298,7 +307,7 @@ var AnswerList = React.createClass({
                 stats={stats}
                 usersAnswer={this.props.usersAnswer}
                 on_click_fn={this.handleClick}/>
-        {this.props.usersAnswer ? <button onClick={this.detailsClick}>See statistics</button> : null}
+        {this.props.usersAnswer ? <button className="detailedStatsButton" onClick={this.detailsClick}>See statistics</button> : null}
 			</div>
 		);
 	}
@@ -411,9 +420,9 @@ var QuestionCreator = React.createClass({
 	render: function() {
 		var creatorNode;
 		if (this.state.isCondensed) {
-			creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} first_name={this.props.first_name} score="0" isCondensed={true} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
+			creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} firstName={this.props.first_name} score="0" isCondensed={true} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
 		} else {
-			creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} first_name={this.props.first_name} score="0" isCondensed={false} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
+			creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} firstName={this.props.first_name} score="0" isCondensed={false} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
 		}
 		return (
 			<div onClick={this.handleClick}>{creatorNode}</div>

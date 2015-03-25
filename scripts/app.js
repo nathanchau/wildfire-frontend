@@ -25,7 +25,7 @@ var piedata = [ {name: "one", value: 10375},
 
 var HomePage = React.createClass({
 	getInitialState: function() {
-		return {currentUser: {username:null, first_name:null, avatarUrl:null, id:null}};
+		return {currentUser: {username:null, first_name:null, avatarUrl:null, id:null}, token:null};
 	},
 	handleLogIn: function(data) {
 		console.log('(In HomePage) New User Authenticated ' + data.username);
@@ -36,14 +36,18 @@ var HomePage = React.createClass({
   		// Currently set to expire a long time from now
   		// Todo: Implement Log Out
   		if (data.token) {
+        console.log("SETTING Token");
   			document.cookie = "token=" + data.token + "; expires=Mon, 1 Jan 2020 00:00:00 UTC";
+        if (this.isMounted()) {
+          this.setState({token: data.token});
+        }
   		}
 	},
 	render: function() {
 		return (
 			<div className="body">
 				<NavBar currentUser={this.state.currentUser} onLogIn={this.handleLogIn}/>
-				<QuestionBox url={GET_QUESTION_URL} pollInterval={200000} onLogIn={this.handleLogIn} currentUser={this.state.currentUser} />
+				<QuestionBox url={GET_QUESTION_URL} pollInterval={200000} onLogIn={this.handleLogIn} currentUser={this.state.currentUser} tempToken={this.state.token}/>
 			</div>
     	);
   	}
