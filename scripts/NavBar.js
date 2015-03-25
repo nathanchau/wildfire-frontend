@@ -114,7 +114,7 @@ var Modal = React.createClass({
             <div className="modalBackdrop" onClick={this.handleBackdropClick}>
                 <div className="modalContent" onClick={this.killClick}>
                     {this.props.children}
-                    <img className="modalAvatarImage" src="https://fbcdn-profile-a.akamaihd.net/hprofile-ak-xfa1/v/t1.0-1/p200x200/1395409_10153074157489050_6030870883043465177_n.jpg?oh=737c9a7043612cf6a6b873f70a145b21&oe=55AA9FA9&__gda__=1438139621_ff62fb748b496f35961d43238b652db4"></img>
+                    <img className="modalAvatarImage" src={this.props.userPictureURL}></img>
                     <p className="modalTitle">{this.props.userResponse.name}</p>
                     <form className="modalForm" name="modalForm" onSubmit={this.handleSubmit} onInput={this.handleInput}>
 	                    <div className="modalFormElement">
