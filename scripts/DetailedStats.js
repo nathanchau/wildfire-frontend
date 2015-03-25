@@ -6,6 +6,7 @@ var PieChart = require('./PieChart');
 var BarChart = require('./BarChart');
 var RangeSlider = require('./RangeSlider');
 var NavBar = require('./NavBar');
+var LogInContainer = require('./LogInContainer');
 
 var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/question/";
 var GET_STATS_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/stats/";
@@ -75,10 +76,17 @@ var DetailedStats = React.createClass({
   },
 
   render: function() {
+    var logInHidden;
+    if (!this.state.currentUser.id) {
+      logInHidden = false;
+    } else {
+      logInHidden = true;
+    }
     return (
       <div className="body">
         <NavBar currentUser={this.state.currentUser} />
         <div className="questionBox">
+          <LogInContainer isHidden={logInHidden} onLogIn={this.handleLogIn}/>
           <div className="questionList">
             <Question questionObj={this.state.questionObj} stats={this.state.stats} />
           </div>

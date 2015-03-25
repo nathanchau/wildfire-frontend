@@ -144,7 +144,7 @@ var NavBar = React.createClass({
 		var TopRightNode;
 		if (!this.props.currentUser.id) {
 			SignUpNode = <SignUpBar onLogIn={this.props.onLogIn}/>;
-			TopRightNode = <button className="navLogInLink">Log In</button>
+			//TopRightNode = <button className="navLogInLink">Log In</button>;
 		} else {
 			TopRightNode = <a href={"/profile/"+this.props.currentUser.id} className="navProfileAvatarLink"><span><img className="navProfileAvatarImage" src={this.props.currentUser.avatarUrl}/></span></a>;
 		}
