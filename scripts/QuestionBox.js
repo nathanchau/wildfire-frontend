@@ -10,7 +10,7 @@ var BarChart = require('./BarChart');
 var PieChart = require('./PieChart');
 var RangeSlider = require('./RangeSlider');
 
-var LogInCreatorContent = require('./LogInCreatorContent');
+var LogInContainer = require('./LogInContainer');
 var QuestionCreatorContent = require('./QuestionCreatorContent');
 
 // URLs
@@ -427,48 +427,6 @@ var QuestionCreator = React.createClass({
 			creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} firstName={this.props.first_name} score="0" isCondensed={true} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
 		} else {
 			creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} firstName={this.props.first_name} score="0" isCondensed={false} condensedText="Ask a question..."/><QuestionCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
-		}
-		return (
-			<div onClick={this.handleClick}>{creatorNode}</div>
-		);
-	}
-});
-
-// Log in
-var LogInContainer = React.createClass({
-	render: function() {
-		var className = "logInContainer";
-		if (this.props.isHidden) {
-			className = className + " condensed"
-		}
-		return (
-			<div className={className}>
-				<LogInCreator onLogIn={this.props.onLogIn}/>
-			</div>
-		);
-	}
-});
-
-var LogInCreator = React.createClass({
-	getInitialState: function() {
-		return {isCondensed: true};
-	}, 
-	handleClick: function(e) {
-		this.setState({isCondensed: false});
-		console.log('(In LogInCreator) clicked');
-		if (this.state.isCondensed) {
-			document.logInForm.logInUsername.focus();			
-		};
-	},
-	handleSubmit: function(e) {
-		this.setState({isCondensed: true});
-	},
-	render: function() {
-		var creatorNode;
-		if (this.state.isCondensed) {
-			creatorNode = <div className="logInCreator"><QuestionHeader avatarUrl="" username="Nathan" first_name="Nathan" score="0" isCondensed={true} condensedText="Click to Log In"/><LogInCreatorContent isCondensed={true} onSubmit={this.handleSubmit} onLogIn={this.props.onLogIn}/></div>;
-		} else {
-			creatorNode = <div className="logInCreator"><QuestionHeader avatarUrl="" username="Nathan" first_name="Nathan" score="0" isCondensed={true} condensedText="Click to Log In"/><LogInCreatorContent isCondensed={false} onSubmit={this.handleSubmit} onLogIn={this.props.onLogIn}/></div>;
 		}
 		return (
 			<div onClick={this.handleClick}>{creatorNode}</div>
