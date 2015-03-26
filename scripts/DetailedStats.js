@@ -88,7 +88,7 @@ var DetailedStats = React.createClass({
         <div className="questionBox">
           <LogInContainer isHidden={logInHidden} onLogIn={this.handleLogIn}/>
           <div className="questionList">
-            <Question questionObj={this.state.questionObj} stats={this.state.stats} />
+            <Question questionObj={this.state.questionObj} stats={this.state.stats} currentUser={this.state.currentUser}/>
           </div>
         </div>
       </div>
@@ -141,8 +141,8 @@ var Question = React.createClass({
         <QuestionHeader 
           avatarUrl={this.props.questionObj.asker.avatarUrl} 
           username={this.props.questionObj.asker.username} 
-          first_name={this.props.questionObj.asker.first_name} 
-          score={this.props.questionObj.answers.length} />
+          firstName={this.props.questionObj.asker.first_name} 
+          score={this.props.questionObj.answers.length} categories={this.props.questionObj.categories} id={this.props.currentUser.id}/>
         
         <QuestionContent 
           index={this.props.index}
@@ -150,10 +150,10 @@ var Question = React.createClass({
           questionText={this.props.questionObj.text} 
           questionId = {this.props.questionObj.id} 
           answerOptions={this.props.questionObj.options} 
-          isAnswered={true}// TODO change to use actual isAnswered field  
           answers={this.props.questionObj.answers} 
           currentUser={this.props.currentUser}
-          stats={this.props.stats} />
+          stats={this.props.stats}
+          usersAnswer={this.props.questionObj.usersAnswer}/>
         {furtherStats}
       </div>
     );
@@ -167,16 +167,27 @@ var QuestionHeader = React.createClass({
       classString += ' condensed';
     }
     var avatarUrl;
+    var avatarClassName;
     if (this.props.avatarUrl) {
       avatarUrl = this.props.avatarUrl;
+      avatarClassName = "questionAvatar";
     } else {
-      avatarUrl = "";
+      avatarUrl = "../images/wildfire-logo.png";
+      avatarClassName = "questionAvatar square";
+    }
+    var categoryText;
+    if (typeof this.props.categories != 'undefined' && this.props.categories.length > 0) {
+      categoryText = "asked about " + this.props.categories.join(", ");
+    } else {
+      categoryText = "asked";
     }
     return (
       <div className={classString}>
-        <img src={avatarUrl} className="questionAvatar" />
-        <div className="questionUsername">{this.props.first_name}</div>
-        <div className="questionCategory">asked about Technology</div>
+        <a href={"/profile/"+this.props.id}>
+        <img src={avatarUrl} className={avatarClassName} />
+        <div className="questionUsername">{this.props.firstName}</div>
+        </a>
+        <div className="questionCategory">{categoryText}</div>
         <div className="questionScore">{this.props.score}</div>
         <div className="questionScoreAccessory">answered</div>
         <div className="questionAsk">{this.props.condensedText}</div>
@@ -199,7 +210,7 @@ var QuestionContent = React.createClass({
             isAnswered={this.props.isAnswered} 
             answers={this.props.answers} 
             currentUser={this.props.currentUser}
-            onResponse={this.props.onResponse} />
+            usersAnswer={this.props.usersAnswer} />
           break;
       case "RG":
           answerNode=<RangeSliderAnswer
@@ -236,11 +247,11 @@ var AnswerList = React.createClass({
     var statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
     console.log(this.props.stats);
     return (
-      <div className="answerList" onClick={this.detailsClick}>
+      <div className="answerList">
         <BarChart 
                 data={this.props.answerOptions}
                 stats={statsArray}
-                isAnswered={true}
+                usersAnswer={this.props.usersAnswer}
                 on_click_fn={null}/>
       </div>
     );

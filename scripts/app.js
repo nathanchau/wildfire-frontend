@@ -3,6 +3,8 @@ require('./base.css');
 require('./expanding');
 require('jquery');
 
+RouterMixin = require('react-mini-router').RouterMixin;
+
 var React = require('react');
 
 var QuestionBox = require('./QuestionBox');
@@ -77,7 +79,7 @@ var App = React.createClass({
     },
 
     detailedStats: function(id) {
-        return <DetailedStats id={id} data={piedata}/>;
+        return <DetailedStats id={id}/>;
     },
 
     profile: function(id) {

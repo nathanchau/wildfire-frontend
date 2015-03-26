@@ -34,6 +34,7 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
   var textGap = 5; 
   var barWidth = el.offsetWidth - 20;
   var barHeight = 30;
+  var stats = new Array();
 
   var chart = d3.select(el).selectAll("svg");
   if ( chart.empty() ) chart = d3.select(el).append("svg");
@@ -43,9 +44,7 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
       .attr("width",  el.offsetWidth)
       .attr("height", (barHeight + gap * 2) * answerOptions.length + 2*gap);
 
-  if(untrimmedStats) {
-    var stats = new Array();
-    // Truncate stats as necessary to match answerOptions.length
+  if(untrimmedStats && usersAnswer) {    // Truncate stats as necessary to match answerOptions.length
     for (var i = 0; i < answerOptions.length; i++) {
       stats[i] = untrimmedStats[i];
     }
@@ -94,15 +93,16 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
         }
       });
 
-  bars.enter()
-      .append("rect")
-      .classed('bar', true)
-      .attr('x', 0)
-      .attr('y', function(d, i) {return y(d) + gap })
-      .attr('width', 0)
-      .attr('height', barHeight)
-      .attr('fill', 'deepskyblue');
-
+  if(usersAnswer) {
+    bars.enter()
+        .append("rect")
+        .classed('bar', true)
+        .attr('x', 0)
+        .attr('y', function(d, i) {return y(d) + gap })
+        .attr('width', 0)
+        .attr('height', barHeight)
+        .attr('fill', 'deepskyblue');
+  }
   // If this question has been answered, fill the mult choice option with a green color
   if(usersAnswer) {
     bars.attr('fill', function(d, i) {

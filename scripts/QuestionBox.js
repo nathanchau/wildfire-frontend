@@ -82,6 +82,10 @@ var QuestionBox = React.createClass({
 	handleResponse: function(questionId, answer, currentUserId) {var JSONObj = { "user": currentUserId, "question": questionId, "answer": answer };
     var JSONStr = JSON.stringify(JSONObj);
     console.log('User ' + currentUserId + ' answered question ' + questionId + ' with answer ' + answer);
+    if(!currentUserId) {
+      console.log("User is not signed in, userId is null");
+      return;
+    }
     $.ajax({
         url: POST_ANSWER_URL,
         dataType: 'json',
@@ -115,7 +119,7 @@ var QuestionBox = React.createClass({
           this.getStats(questionId, newData);
         }.bind(this),
         error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
+          console.error(status, err.toString());
         }.bind(this)
       });
   },
@@ -201,7 +205,7 @@ var Question = React.createClass({
 		var answeredNode;
 		return (
 			<div className="question">
-			  <QuestionHeader QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} categories={this.props.categories}/>
+			  <QuestionHeader QuestionHeader avatarUrl={this.props.avatarUrl} id={this.props.currentUser.id} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} categories={this.props.categories}/>
 				
         <QuestionContent 
           index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} answerOptions={this.props.answerOptions} currentUser={this.props.currentUser} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
