@@ -873,3 +873,57 @@ polyline{
 	margin-bottom: 15px;
 
 }
+
+.searchBar {
+	background-color: white;
+	font-family: "Helvetica Neue", sans-serif;
+	border-radius: 5px;
+	padding: 10px 10px;
+	margin: auto;
+	margin-top: 10px;
+	margin-bottom: 15px;
+	font-size: 18px;
+	font-weight: 700;
+	max-width: 360px;
+}
+
+.userBox {
+	margin: auto;
+	max-width: 400px;
+}
+
+.userList {
+	margin: 10px;
+	margin-bottom: -10px;
+}
+
+.userContent {
+	background-color: white;
+	border-radius: 5px;
+	margin: 10px 0px;
+	padding: 6px;
+}
+
+.userAvatarImage {
+	width: 60px;
+	height: 60px;
+	border-radius: 30px;
+}
+
+.userFirstName {
+	margin: 10px;
+	position: relative;
+	top: -25px;
+	font-family: "Helvetica Neue", sans-serif;
+	font-weight: 500;
+	font-size: 18px;
+}
+
+.userUsername {
+	position: relative;
+	top: -25px;
+	font-family: "Helvetica Neue", sans-serif;
+	font-weight: 400;
+	font-size: 16px;
+	font-style: italic;
+}

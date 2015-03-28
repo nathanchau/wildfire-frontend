@@ -17,7 +17,9 @@ var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/questi
 //Router 
 RouterMixin = require('react-mini-router').RouterMixin;
 var navigate = require('react-mini-router').navigate;
+
 var DetailedStats = require('./DetailedStats');
+var Search = require('./Search');
 
 var piedata = [ {name: "one", value: 10375},
       {name: "two", value:  7615},
@@ -64,6 +66,7 @@ var App = React.createClass({
         '/message/:text': 'message',
         '/detailedStats/:id' : 'detailedStats', 
         '/profile/:id' : 'profile',
+        '/search/:q' : 'search',
     },
 
     render: function() {
@@ -84,6 +87,10 @@ var App = React.createClass({
 
     profile: function(id) {
     	return <Profile id={id}/>;
+    },
+
+    search: function(q) {
+      return <Search q={q}/>;
     },
 
     notFound: function(path) {

@@ -157,7 +157,7 @@ var NavBar = React.createClass({
 								<span className="navHomeImage"><i className="fa fa-home fa-2x"></i></span>
 								<span className="navHomeText"> Home</span>
 							</a>
-							<a href="/" className="navDiscover">
+							<a href="/search/nathan" className="navDiscover">
 								<span className="navDiscoverImage"><i className="fa fa-slack fa-2x"></i></span>
 								<span className="navDiscoverText"> Discover</span>
 							</a>
