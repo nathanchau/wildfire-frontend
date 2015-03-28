@@ -17,13 +17,6 @@ var QuestionCreatorContent = require('./QuestionCreatorContent');
 var POST_ANSWER_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/";
 var GET_STATS_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/stats/";
 
-var sampleStats = [5, 10, 20, 65, 0];//, 10, 15, 10, 20, 50, 75, 20, 10, 5];
-var piedata = [ {name: "one", value: 10375},
-      {name: "two", value:  7615},
-      {name: "three", value:  832},
-      {name: "four", value:  516},
-      {name: "five", value:  491} ];
-
 var QuestionBox = React.createClass({
   getInitialState: function() {
     return {data: []};
@@ -201,6 +194,13 @@ var QuestionList = React.createClass({
 });
 
 var Question = React.createClass({
+  shouldComponentUpdate: function(nextProps, nextState) {
+    // Only update if the usersAnswer was recently updated
+    if(nextProps.usersAnswer && !this.props.usersAnswer) {
+      return true;
+    }
+    return false;
+  },
 	render: function() {
 		var answeredNode;
 		return (
