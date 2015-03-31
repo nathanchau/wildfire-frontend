@@ -274,7 +274,9 @@ var QuestionContent = React.createClass({
             rangeMax={this.props.answerOptions[1]}
             questionId={this.props.questionId}
             currentUser={this.props.currentUser}
-            onResponse={this.props.onResponse} />
+            stats={this.props.stats}
+            onResponse={this.props.onResponse} 
+            usersAnswer={this.props.usersAnswer}/>
           break;
       default:
           console.log("Invalid question type = " + this.props.questionType);
@@ -320,7 +322,6 @@ var AnswerList = React.createClass({
 var RangeSliderAnswer = React.createClass({
   getInitialState: function() {
     return {
-      statsAvg: null, 
       curValue: 0,
     };
   },
@@ -328,12 +329,16 @@ var RangeSliderAnswer = React.createClass({
     this.setState({curValue: value});
   },
   detailsClick: function() {
-    if(this.state.statsAvg) {
+    if(this.props.stats.option1) {
       console.log("going to detailed stats");
       navigate('/detailedStats/' + this.props.questionId);
     }
   },
-  postAnswer: function() {
+  handleSubmit: function() {
+    console.log("submitting response");
+    this.props.onResponse(this.props.questionId, this.state.curValue, this.props.currentUser.id);
+  },
+  /*postAnswer: function() {
     var JSONObj = { "user": this.props.currentUser.id, "question": this.props.questionId, "answer": this.state.curValue };
     var JSONStr = JSON.stringify(JSONObj);
     console.log('You chose ' + this.state.curValue);
@@ -359,7 +364,7 @@ var RangeSliderAnswer = React.createClass({
           var response = data.response;
           console.log(response);
           if (this.isMounted()) {
-            /*statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];*/
+            //statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
             this.setState({statsAvg: response.avg});
           }
         }.bind(this),
@@ -367,18 +372,20 @@ var RangeSliderAnswer = React.createClass({
           console.error(url, status, err.toString());
           }.bind(this)
       });
-  },
+  },*/
   render: function() {
+    console.log("stats = " + this.props.stats.option1);
     return (
-      <div className="answerList" onClick={this.detailsClick}>
+      <div className="answerList">
         <RangeSlider
                 min={this.props.rangeMin}
                 max={this.props.rangeMax}
                 onSlideFn = {this.onSlideFn}
                 startValue={0}
-                statsAvg = {this.state.statsAvg}
+                statsAvg = {this.props.stats.option1}
                 isOnlyStats={false}/>
-        <button className="btn" onClick={this.postAnswer}>{this.state.curValue}</button>
+        {this.props.usersAnswer ? <button className="detailedStatsButton" onClick={this.detailsClick}>See statistics</button> : null}
+        <button className="btn" onClick={this.handleSubmit}>{this.state.curValue}</button>
       </div>
     );
   }
