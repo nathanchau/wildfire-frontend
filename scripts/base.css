@@ -62,7 +62,8 @@ body {
 	height: 40px;
 	width: 40px;
 	display: block;
-	margin: 0 auto;
+	position: absolute;
+	right: 50px;
 	padding-top: 3px;
 }
 
@@ -164,6 +165,56 @@ body {
 	width: 34px;
 	margin-top: 6px;
 	border-radius: 20px;
+}
+
+.navSearchForm {
+	position: absolute;
+	left: 90px;
+	width: -moz-calc(100% - 190px);
+    width: -webkit-calc(100% - 190px);
+    width: calc(100% - 190px);
+    background-color: rgb(240,240,240);
+	margin-top: 8px;
+	border-radius: 5px;
+}
+
+@media (max-width: 450px) {
+	.navSearchForm {
+		left: 50px;
+		width: -moz-calc(100% - 150px);
+	    width: -webkit-calc(100% - 150px);
+	    width: calc(100% - 150px);
+	}
+}
+
+.navSearchInput {
+	font-size: 14px;
+	font-family: "Helvetica Neue", sans-serif;
+	background-color: transparent;
+	border-radius: 5px;
+	border-style: none;
+	height: 30px;
+	padding-left: 10px;
+	position: relative;
+	width: 80%;
+}
+
+.navSearchInput:focus {
+	outline: none;
+}
+
+.navSearchSubmit {
+	position: relative;
+	width: -moz-calc(20% - 10px);
+    width: -webkit-calc(20% - 10px);
+    width: calc(20% - 10px);
+	margin-right: 10px;
+	border-style: none;
+	background-color: transparent;
+	text-align: right;
+	color: rgb(120,120,120);
+	cursor: pointer;
+	font-size: 14px;
 }
 
 /* SignUpBar ---------------------------------------*/
@@ -884,12 +935,12 @@ polyline{
 	margin-bottom: 15px;
 	font-size: 18px;
 	font-weight: 700;
-	max-width: 360px;
+	max-width: 380px;
 }
 
 .userBox {
 	margin: auto;
-	max-width: 400px;
+	max-width: 420px;
 }
 
 .userList {

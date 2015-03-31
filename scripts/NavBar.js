@@ -1,4 +1,7 @@
 var React = require('react');
+//Router 
+RouterMixin = require('react-mini-router').RouterMixin;
+var navigate = require('react-mini-router').navigate;
 
 // Modal/Popover
 //  Todo: separate this into a separate file?
@@ -138,6 +141,12 @@ var Modal = React.createClass({
 // Navigation Bar
 
 var NavBar = React.createClass({
+	handleSubmit: function(e) {
+		e.preventDefault();
+		console.log("Fox in the wormhole");
+		var queryString = "/search/" + this.refs.navSearchInput.getDOMNode().value;
+		navigate(queryString);
+	},
 	render: function() {
 		console.log(this.props.currentUser);
 		var SignUpNode;
@@ -157,10 +166,10 @@ var NavBar = React.createClass({
 								<span className="navHomeImage"><i className="fa fa-home fa-2x"></i></span>
 								<span className="navHomeText"> Home</span>
 							</a>
-							<a href="/search/nathan" className="navDiscover">
-								<span className="navDiscoverImage"><i className="fa fa-slack fa-2x"></i></span>
-								<span className="navDiscoverText"> Discover</span>
-							</a>
+							<form className="navSearchForm" onSubmit={this.handleSubmit}>
+								<input type="text" className="navSearchInput" ref="navSearchInput" name="navSearchInput" placeholder="Search"></input>
+								<button type="submit" className="navSearchSubmit"><i className="fa fa-search"></i></button>
+							</form>
 							<img className="navLogo" src="../images/wildfire-logo.png"/>
 							{TopRightNode}
 						</span>

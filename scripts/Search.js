@@ -5,6 +5,11 @@ var React = require('react');
 var NavBar = require('./NavBar');
 var LogInContainer = require('./LogInContainer');
 
+//Router 
+RouterMixin = require('react-mini-router').RouterMixin;
+var navigate = require('react-mini-router').navigate;
+var DetailedStats = require('./DetailedStats');
+
 //Quick view
 var BarChart = require('./BarChart');
 var PieChart = require('./PieChart');
