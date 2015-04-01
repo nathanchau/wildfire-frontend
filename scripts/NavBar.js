@@ -163,7 +163,11 @@ var NavBar = React.createClass({
 					<div className="navBarInner">
 						<span>
 							<a href="/" className="navHome">
-								<span className="navHomeImage"><i className="fa fa-home fa-2x"></i></span>
+								<span className="navHomeImage">
+									<svg className="navHomeSVG">
+										<polygon points="6,18 6,12 10,12 10,18 16,18 16,7.9 8,0 0,7.9 0,18" class="fill"></polygon>
+									</svg>
+								</span>
 								<span className="navHomeText"> Home</span>
 							</a>
 							<form className="navSearchForm" onSubmit={this.handleSubmit}>

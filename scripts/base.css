@@ -77,11 +77,6 @@ body {
 	color: rgb(80,80,80);
 }
 
-.navHome:hover {
-	color: rgb(235, 173, 40);
-	transform: rotate(-2deg);
-}
-
 .navHomeText {
 	position: absolute;
 	left: 40px;
@@ -91,6 +86,14 @@ body {
 	position: absolute;
 	left: 10px;
 	top: 8px;
+}
+
+.navHomeSVG {
+	margin-top: 5px;
+	margin-left: 5px;
+	height: 20px;
+	width: 30px;
+	fill: rgb(80,80,80);
 }
 
 .navDiscover {
@@ -176,6 +179,10 @@ body {
     background-color: rgb(240,240,240);
 	margin-top: 8px;
 	border-radius: 5px;
+}
+
+.navSearchForm:hover {
+	background-color: rgb(230,230,230);
 }
 
 @media (max-width: 450px) {
@@ -340,16 +347,29 @@ body {
 		right: auto;
 		left: 90px;
 		top: 35px;
+		width: -moz-calc((100% - 100px)/3);
+	    width: -webkit-calc((100% - 100px)/3);
+	    width: calc((100% - 100px)/3);
 	}
 	.profileQuestionsAnswered {
 		right: auto;
-		left: 160px;
+		left: -moz-calc(((100% - 90px)/3) + 90px);
+	    left: -webkit-calc(((100% - 90px)/3) + 90px);
+	    left: calc(((100% - 90px)/3) + 90px);
 		top: 35px;
+		width: -moz-calc((100% - 100px)/3);
+	    width: -webkit-calc((100% - 100px)/3);
+	    width: calc((100% - 100px)/3);
 	}
 	.profileFollowers {
 		right: auto;
-		left: 230px;
+		left: -moz-calc(((100% - 90px)*2/3) + 90px);
+	    left: -webkit-calc(((100% - 90px)*2/3) + 90px);
+	    left: calc(((100% - 90px)*2/3) + 90px);
 		top: 35px;
+		width: -moz-calc((100% - 100px)/3);
+	    width: -webkit-calc((100% - 100px)/3);
+	    width: calc((100% - 100px)/3);
 	}
 }
 

@@ -181,7 +181,7 @@ var QuestionList = React.createClass({
 	    if(this.props.data.response) {
 	  		var questionNodes = this.props.data.response.popularQuestions.map(function (question, index) {
 	  			return (
-	  				<Question onResponse={this.props.onResponse} index={index} questionText={question.text} questionType={question.questionType} questionId = {question.id} username={question.asker.username} firstName={question.asker.first_name} answerList={question.options} answerUrl={POST_ANSWER_URL} avatarUrl={question.asker.avatarUrl} answerOptions={question.options} currentUser={this.props.currentUser} categories={question.categories} stats={question.quick} usersAnswer={question.usersAnswer} answers={question.answers}/>
+	  				<Question onResponse={this.props.onResponse} index={index} questionText={question.text} questionType={question.questionType} questionId = {question.id} username={question.asker.username} firstName={question.asker.first_name} userId={question.asker.id} answerList={question.options} answerUrl={POST_ANSWER_URL} avatarUrl={question.asker.avatarUrl} answerOptions={question.options} currentUser={this.props.currentUser} categories={question.categories} stats={question.quick} usersAnswer={question.usersAnswer} answers={question.answers}/>
 	  			);
 	  		}.bind(this));
 	    }
@@ -205,7 +205,7 @@ var Question = React.createClass({
 		var answeredNode;
 		return (
 			<div className="question">
-			  <QuestionHeader QuestionHeader avatarUrl={this.props.avatarUrl} id={this.props.currentUser.id} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} categories={this.props.categories}/>
+			  <QuestionHeader QuestionHeader avatarUrl={this.props.avatarUrl} id={this.props.currentUser.id} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} categories={this.props.categories} userId={this.props.userId}/>
 				
         <QuestionContent 
           index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} answerOptions={this.props.answerOptions} currentUser={this.props.currentUser} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
@@ -237,7 +237,7 @@ var QuestionHeader = React.createClass({
     }
     return (
       <div className={classString}>
-        <a href={"/profile/"+this.props.id}>
+        <a href={"/profile/"+this.props.userId}>
         <img src={avatarUrl} className={avatarClassName} />
         <div className="questionUsername">{this.props.firstName}</div>
         </a>
