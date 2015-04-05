@@ -744,11 +744,30 @@ body {
 	margin: 10px 0px;
 }
 
-svg {
-	/*width: 100%;
-	height: 100%;*/
+/* Range histogram ----------------------------------------*/
+.histogramAxis {
+	font: 10px sans-serif;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+.histogramAxis path, .histogramAxis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
 }
 
+.bar rect {
+  fill: steelblue;
+  shape-rendering: crispEdges;
+}
+
+.bar text {
+	font: 10px sans-serif;
+  fill: #fff;
+}
+
+/* Pie chart ----------------------------------------*/
 path.slice{
 	stroke-width:2px;
 }
@@ -760,11 +779,12 @@ polyline{
 	fill: none;
 }
 
+/* Range slider ----------------------------------------*/
 .axis {
   font: 10px sans-serif;
   -webkit-user-select: none;
   -moz-user-select: none;
-  user-select: none;
+  cursor: default;
 }
 
 .axis .domain {
@@ -787,9 +807,21 @@ polyline{
   stroke: #000;
   stroke-opacity: .5;
   stroke-width: 1.25px;
-  cursor: crosshair;
 }
 
+.slider .averageCircle {
+  fill: #FFD801;
+  stroke: #000;
+  stroke-opacity: .5;
+  stroke-width: 1.25px;
+}
+.buttonText {
+	font: 17px Helvetica Neue;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  cursor: default;
+}
 .d3-tip {
   line-height: 1;
   font-weight: 500;
@@ -820,13 +852,7 @@ polyline{
   left: 0;
 }
 
-.slider .averageCircle {
-  fill: #FFD801;
-  stroke: #000;
-  stroke-opacity: .5;
-  stroke-width: 1.25px;
-  cursor: crosshair;
-}
+
 
 .btn {
   background: #3498db;

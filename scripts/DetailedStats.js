@@ -4,7 +4,8 @@ require('./base.css');
 var React = require('react');
 var PieChart = require('./PieChart');
 var BarChart = require('./BarChart');
-var RangeSlider = require('./RangeSlider');
+var ReusableSlider = require('./ReusableSlider');
+var ReusableHistogram = require('./ReusableHistogram');
 var NavBar = require('./NavBar');
 var LogInContainer = require('./LogInContainer');
 
@@ -49,7 +50,7 @@ var DetailedStats = React.createClass({
           }
         }.bind(this),
         error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
+          console.error(xhr, status, err.toString());
           }.bind(this)
       });
   },
@@ -58,13 +59,28 @@ var DetailedStats = React.createClass({
     $.ajax({
         url: GET_STATS_URL + this.props.id + "/",
         dataType: 'json',
+        beforeSend: function(xhr) {
+          // Get cookie and set header
+          var cookies = document.cookie.split(";");
+          var tokenValue;
+          for (var i = 0; i < cookies.length; i++) {
+            var eachCookie = cookies[i].split("=");
+            if (eachCookie[0] == "token") {
+              tokenValue = eachCookie[1];
+            }
+          }
+          console.log("Token is " + tokenValue);
+          if (tokenValue) {
+            xhr.setRequestHeader("Authorization", "Token " + tokenValue);
+          }
+        },
         success: function(data) {
           if (this.isMounted()) {
             this.setState({stats: data.response});
           }
         }.bind(this),
         error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
+          console.error(xhr, status, err.toString());
           }.bind(this)
       });
   },
@@ -112,23 +128,23 @@ var Question = React.createClass({
           </div>
           break;
       case "RG":
+          var bounds = {min: this.props.questionObj.options[0], max: this.props.questionObj.options[1]}
+          var allValues=[], maleValues=[], femaleValues=[];
+          for(i=0; i < this.props.stats.quick.responses.length; i++) {
+            allValues.push(this.props.stats.quick.responses[i].answer);
+          }
+          for(i=0; i < this.props.stats.female.responses.length; i++) {
+            femaleValues.push(this.props.stats.female.responses[i].answer);
+          }
+          for(i=0; i < this.props.stats.male.responses.length; i++) {
+            maleValues.push(this.props.stats.male.responses[i].answer);
+          }
           furtherStats=<div className="furtherStats">
+            <RangeHistogram values={allValues} bounds={bounds}/>
             <h4>What the men think</h4>
-            <RangeSlider
-                min={this.props.questionObj.options[0]} 
-                max={this.props.questionObj.options[1]} 
-                onSlideFn = {null}
-                startValue = {-1}
-                statsAvg = {this.props.stats.male}
-                isOnlyStats={true}/>
+            <RangeHistogram values={maleValues} bounds={bounds}/>
             <h4>What the women think</h4>
-            <RangeSlider
-                min={this.props.questionObj.options[0]} 
-                max={this.props.questionObj.options[1]} 
-                onSlideFn = {null}
-                startValue = {-1}
-                statsAvg = {this.props.stats.female}
-                isOnlyStats={true}/>
+            <RangeHistogram values={femaleValues} bounds={bounds}/>
             </div>
           break;
       default:
@@ -214,15 +230,15 @@ var QuestionContent = React.createClass({
           break;
       case "RG":
           answerNode=<RangeSliderAnswer
-            statsAvg={this.props.stats.avg}
             index={this.props.index}
             questionType={this.props.questionType}
             rangeMin={this.props.answerOptions[0]}
             rangeMax={this.props.answerOptions[1]}
-            questionId={this.props.questionId} 
-            isAnswered={this.props.isAnswered} 
+            questionId={this.props.questionId}
             currentUser={this.props.currentUser}
-            onResponse={this.props.onResponse} />
+            stats={this.props.stats}
+            onResponse={this.props.onResponse} 
+            usersAnswer={this.props.usersAnswer}/>
           break;
       default:
           console.log("Invalid question type = " + this.props.questionType);
@@ -259,17 +275,51 @@ var AnswerList = React.createClass({
 });
 
 var RangeSliderAnswer = React.createClass({
+  getInitialState: function() {
+    return {
+      width: 300
+    };
+  },
+  componentDidMount: function() {
+    // Set slider width to available space in this DOMNode
+    this.setState({width: this.getDOMNode().offsetWidth});
+    console.log("updated width to " + this.state.width);
+  },
+  render: function() {
+    var quick;
+    if(this.props.usersAnswer && this.props.stats) {
+      quick={usersAnswer: this.props.usersAnswer.answer, average: this.props.stats.quick.avg};
+    }
+    var bounds = {min: this.props.rangeMin, max: this.props.rangeMax};
+    return (
+      <div className="answerList">
+        <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} quick={quick}/>
+      </div>
+    );
+  }
+});
 
+var RangeHistogram = React.createClass({
+  getInitialState: function() {
+    return {
+      width: 300
+    };
+  },
+  componentDidMount: function() {
+    // Set histogram width to available space in this DOMNode
+    this.setState({width: this.getDOMNode().offsetWidth});
+  },
   render: function() {
     return (
-      <div className="answerList" onClick={this.detailsClick}>
-        <RangeSlider
-                min={this.props.rangeMin}
-                max={this.props.rangeMax}
-                onSlideFn = {null}
-                statsAvg = {this.props.statsAvg}/>
+      <div className="answerList">
+        <ReusableHistogram
+            width={this.state.width}
+            values={this.props.values}
+            bounds={this.props.bounds}/>
         </div>
     );
   }
 });
+
+
 module.exports = DetailedStats;

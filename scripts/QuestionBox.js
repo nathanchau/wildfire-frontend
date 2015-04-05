@@ -12,10 +12,12 @@ var RangeSlider = require('./RangeSlider');
 
 var LogInContainer = require('./LogInContainer');
 var QuestionCreatorContent = require('./QuestionCreatorContent');
-
+var ReusableSlider = require('./ReusableSlider');
 // URLs
 var POST_ANSWER_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/";
 var GET_STATS_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/stats/";
+
+var rangeStats = {"response":{"region":[{"answer__avg":1.0,"user__region":"en_US"},{"answer__avg":7.0,"user__region":"USA"}],"male":{"avg":5.0,"responses":[{"answer":1},{"answer":9}]},"quick":{"avg":5.0,"responses":[{"answer":1},{"answer":5},{"answer":9}]},"female":{"avg":5.0,"responses":[{"answer":5}]}},"user":null};
 
 var QuestionBox = React.createClass({
   getInitialState: function() {
@@ -185,9 +187,10 @@ var QuestionList = React.createClass({
 	  			);
 	  		}.bind(this));
 	    }
+      
 		return (
 			<div className="questionList">
-				{questionNodes}
+        {questionNodes}
 			</div>
 		);
 	}
@@ -208,7 +211,7 @@ var Question = React.createClass({
 			  <QuestionHeader QuestionHeader avatarUrl={this.props.avatarUrl} id={this.props.currentUser.id} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} categories={this.props.categories} userId={this.props.userId}/>
 				
         <QuestionContent 
-          index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerList={this.props.answerList} answerOptions={this.props.answerOptions} currentUser={this.props.currentUser} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
+          index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerOptions={this.props.answerOptions} currentUser={this.props.currentUser} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
 			</div>
 		);
 	}
@@ -306,6 +309,7 @@ var AnswerList = React.createClass({
     if(this.props.stats) {
       stats=[this.props.stats.option1, this.props.stats.option2, this.props.stats.option3, this.props.stats.option4, this.props.stats.option5];
     }
+
 		return (
 			<div className="answerList">
 				<BarChart 
@@ -322,70 +326,34 @@ var AnswerList = React.createClass({
 var RangeSliderAnswer = React.createClass({
   getInitialState: function() {
     return {
-      curValue: 0,
+      width: 300
     };
   },
-  onSlideFn: function(value) {
-    this.setState({curValue: value});
-  },
   detailsClick: function() {
-    if(this.props.stats.option1) {
+    if(this.props.usersAnswer && this.props.stats) {
       console.log("going to detailed stats");
       navigate('/detailedStats/' + this.props.questionId);
     }
   },
-  handleSubmit: function() {
-    console.log("submitting response");
-    this.props.onResponse(this.props.questionId, this.state.curValue, this.props.currentUser.id);
+  handleSubmit: function(slideValue) {
+    console.log("submitting response " + slideValue);
+    this.props.onResponse(this.props.questionId, slideValue, this.props.currentUser.id);
   },
-  /*postAnswer: function() {
-    var JSONObj = { "user": this.props.currentUser.id, "question": this.props.questionId, "answer": this.state.curValue };
-    var JSONStr = JSON.stringify(JSONObj);
-    console.log('You chose ' + this.state.curValue);
-    $.ajax({
-        url: POST_ANSWER_URL,
-        dataType: 'json',
-        type: 'POST',
-        data: JSONStr,
-        success: function(data) {
-          this.props.onResponse(data);
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
-        }.bind(this)
-      });
-    this.getStats();
+  componentDidMount: function() {
+    // Set slider width to available space in this DOMNode
+    this.setState({width: this.getDOMNode().offsetWidth});
+    console.log("updated width to " + this.state.width);
   },
-  getStats: function() {
-    $.ajax({
-        url: GET_STATS_URL + this.props.questionId + "/",
-        dataType: 'json',
-        success: function(data) {
-          var response = data.response;
-          console.log(response);
-          if (this.isMounted()) {
-            //statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];
-            this.setState({statsAvg: response.avg});
-          }
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
-          }.bind(this)
-      });
-  },*/
   render: function() {
-    console.log("stats = " + this.props.stats.option1);
+    var quick;
+    if(this.props.usersAnswer && this.props.stats) {
+      quick={usersAnswer: this.props.usersAnswer.answer, average: this.props.stats};
+    }
+    var bounds = {min: this.props.rangeMin, max: this.props.rangeMax};
     return (
       <div className="answerList">
-        <RangeSlider
-                min={this.props.rangeMin}
-                max={this.props.rangeMax}
-                onSlideFn = {this.onSlideFn}
-                startValue={0}
-                statsAvg = {this.props.stats.option1}
-                isOnlyStats={false}/>
+        <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} quick={quick}/>
         {this.props.usersAnswer ? <button className="detailedStatsButton" onClick={this.detailsClick}>See statistics</button> : null}
-        <button className="btn" onClick={this.handleSubmit}>{this.state.curValue}</button>
       </div>
     );
   }

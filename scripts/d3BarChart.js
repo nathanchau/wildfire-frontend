@@ -71,7 +71,7 @@ d3BarChart._drawBars = function(el, answerOptions, untrimmedStats, usersAnswer, 
       .data(answerOptions)
   var statsText = chart.selectAll("text .stats")
        .data(stats);
-  
+
   backgroundBars.enter()
       .append('rect')
       .classed('background', true)
