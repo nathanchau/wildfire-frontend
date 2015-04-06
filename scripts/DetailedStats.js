@@ -151,7 +151,6 @@ var Question = React.createClass({
           console.log("Invalid question type = " + this.props.questionType);
           return(null);
     }
-    console.log(this.props.questionObj);
     return (
       <div className="question">
         <QuestionHeader 
@@ -283,17 +282,16 @@ var RangeSliderAnswer = React.createClass({
   componentDidMount: function() {
     // Set slider width to available space in this DOMNode
     this.setState({width: this.getDOMNode().offsetWidth});
-    console.log("updated width to " + this.state.width);
   },
   render: function() {
-    var quick;
+    var handlesToDisplay;
     if(this.props.usersAnswer && this.props.stats) {
-      quick={usersAnswer: this.props.usersAnswer.answer, average: this.props.stats.quick.avg};
+      handlesToDisplay={usersAnswer: this.props.usersAnswer.answer, ll: this.props.stats.quick.avg, male: this.props.stats.male.avg, female: this.props.stats.female.avg};
     }
     var bounds = {min: this.props.rangeMin, max: this.props.rangeMax};
     return (
       <div className="answerList">
-        <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} quick={quick}/>
+        <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} handlesToDisplay={handlesToDisplay}/>
       </div>
     );
   }

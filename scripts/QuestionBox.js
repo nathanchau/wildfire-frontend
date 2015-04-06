@@ -8,7 +8,6 @@ var DetailedStats = require('./DetailedStats');
 //Quick view
 var BarChart = require('./BarChart');
 var PieChart = require('./PieChart');
-var RangeSlider = require('./RangeSlider');
 
 var LogInContainer = require('./LogInContainer');
 var QuestionCreatorContent = require('./QuestionCreatorContent');
@@ -345,14 +344,14 @@ var RangeSliderAnswer = React.createClass({
     console.log("updated width to " + this.state.width);
   },
   render: function() {
-    var quick;
+    var handlesToDisplay;
     if(this.props.usersAnswer && this.props.stats) {
-      quick={usersAnswer: this.props.usersAnswer.answer, average: this.props.stats};
+      handlesToDisplay={usersAnswer: this.props.usersAnswer.answer, all: this.props.stats};
     }
     var bounds = {min: this.props.rangeMin, max: this.props.rangeMax};
     return (
       <div className="answerList">
-        <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} quick={quick}/>
+        <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} handlesToDisplay={handlesToDisplay}/>
         {this.props.usersAnswer ? <button className="detailedStatsButton" onClick={this.detailsClick}>See statistics</button> : null}
       </div>
     );

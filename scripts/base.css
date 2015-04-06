@@ -809,8 +809,20 @@ polyline{
   stroke-width: 1.25px;
 }
 
-.slider .averageCircle {
+.slider .allHandleCircle {
   fill: #FFD801;
+  stroke: #000;
+  stroke-opacity: .5;
+  stroke-width: 1.25px;
+}
+.slider .maleHandleCircle {
+  fill: #72c5f7;
+  stroke: #000;
+  stroke-opacity: .5;
+  stroke-width: 1.25px;
+}
+.slider .femaleHandleCircle {
+  fill: #F778A1;
   stroke: #000;
   stroke-opacity: .5;
   stroke-width: 1.25px;

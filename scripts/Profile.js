@@ -13,7 +13,7 @@ var DetailedStats = require('./DetailedStats');
 //Quick view
 var BarChart = require('./BarChart');
 var PieChart = require('./PieChart');
-var RangeSlider = require('./RangeSlider');
+var ReusableSlider = require('./ReusableSlider');
 
 var LogInContainer = require('./LogInContainer');
 var QuestionCreatorContent = require('./QuestionCreatorContent');
@@ -29,6 +29,73 @@ var Profile = React.createClass({
 	getInitialState: function() {
 		return {questionList:null, numQuestionsAnswered:null, numQuestionsAsked:null, numConnections:null, user: {username:null, first_name:null, avatarUrl:null, id:null}, currentUser: {username:null, first_name:null, avatarUrl:null, id:null}};
 	},
+	handleResponse: function(questionId, answer, currentUserId) {var JSONObj = { "user": currentUserId, "question": questionId, "answer": answer };
+    var JSONStr = JSON.stringify(JSONObj);
+    console.log('User ' + currentUserId + ' answered question ' + questionId + ' with answer ' + answer);
+    if(!currentUserId) {
+      console.log("User is not signed in, userId is null");
+      return;
+    }
+    $.ajax({
+        url: POST_ANSWER_URL,
+        dataType: 'json',
+        type: 'POST',
+        data: JSONStr,
+        beforeSend: function(xhr) {
+          // Get cookie and set header
+          var cookies = document.cookie.split(";");
+          var tokenValue;
+          for (var i = 0; i < cookies.length; i++) {
+            var eachCookie = cookies[i].split("=");
+            if (eachCookie[0] == "token") {
+              tokenValue = eachCookie[1];
+            }
+          }
+          console.log("Token is " + tokenValue);
+          if (tokenValue) {
+            xhr.setRequestHeader("Authorization", "Token " + tokenValue);
+          }
+        },
+        success: function(data) {
+          var newData = this.state.data;
+          newData.response.popularQuestions.forEach(function(question) {
+            if(question.id == questionId) {
+              console.log("Replacing old answers for question " + question.id)
+              question.answers=data.response.answers;
+              question.quick=data.response.quick;
+              question.usersAnswer=data.response.usersAnswer;
+            }
+          });
+          this.getStats(questionId, newData);
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(status, err.toString());
+        }.bind(this)
+      });
+  },
+  getStats: function(questionId, dirtyData) {
+    var newData = dirtyData;
+    $.ajax({
+        url: GET_STATS_URL + questionId + "/",
+        dataType: 'json',
+        success: function(data) {
+          var response = data.response;
+          newData.response.popularQuestions.forEach(function(question) {
+            if(question.id == questionId) {
+              question.stats=response;
+            }
+          });
+        }.bind(this),
+        error: function(xhr, status, err) {
+          console.error(url, status, err.toString());
+          }.bind(this)
+      });
+    if (this.isMounted()) {
+      this.setState({data: newData});
+      console.log("newData")
+      console.log(newData);
+    }
+  },
 	handleLogIn: function(data) {
 		console.log('(In HomePage) New User Authenticated ' + data.username);
 		if (this.isMounted()) {
@@ -280,7 +347,9 @@ var QuestionContent = React.createClass({
             rangeMax={this.props.answerOptions[1]}
             questionId={this.props.questionId}
             currentUser={this.props.currentUser}
-            onResponse={this.props.onResponse} />
+            stats={this.props.stats}
+            onResponse={this.props.onResponse} 
+            usersAnswer={this.props.usersAnswer}/>
           break;
       default:
           console.log("Invalid question type = " + this.props.questionType);
@@ -326,65 +395,34 @@ var AnswerList = React.createClass({
 var RangeSliderAnswer = React.createClass({
   getInitialState: function() {
     return {
-      statsAvg: null, 
-      curValue: 0,
+      width: 300
     };
   },
-  onSlideFn: function(value) {
-    this.setState({curValue: value});
-  },
   detailsClick: function() {
-    if(this.state.statsAvg) {
+    if(this.props.usersAnswer && this.props.stats) {
       console.log("going to detailed stats");
       navigate('/detailedStats/' + this.props.questionId);
     }
   },
-  postAnswer: function() {
-    var JSONObj = { "user": this.props.currentUser.id, "question": this.props.questionId, "answer": this.state.curValue };
-    var JSONStr = JSON.stringify(JSONObj);
-    console.log('You chose ' + this.state.curValue);
-    $.ajax({
-        url: POST_ANSWER_URL,
-        dataType: 'json',
-        type: 'POST',
-        data: JSONStr,
-        success: function(data) {
-          this.props.onResponse(data);
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
-        }.bind(this)
-      });
-    this.getStats();
+  handleSubmit: function(slideValue) {
+    console.log("submitting response " + slideValue);
+    this.props.onResponse(this.props.questionId, slideValue, this.props.currentUser.id);
   },
-  getStats: function() {
-    $.ajax({
-        url: GET_STATS_URL + this.props.questionId + "/",
-        dataType: 'json',
-        success: function(data) {
-          var response = data.response;
-          console.log(response);
-          if (this.isMounted()) {
-            /*statsArray = [response.quick.option1, response.quick.option2, response.quick.option3, response.quick.option4, response.quick.option5];*/
-            this.setState({statsAvg: response.avg});
-          }
-        }.bind(this),
-        error: function(xhr, status, err) {
-          console.error(url, status, err.toString());
-          }.bind(this)
-      });
+  componentDidMount: function() {
+    // Set slider width to available space in this DOMNode
+    this.setState({width: this.getDOMNode().offsetWidth});
+    console.log("updated width to " + this.state.width);
   },
   render: function() {
+  	var handlesToDisplay;
+    if(this.props.usersAnswer && this.props.stats) {
+      handlesToDisplay={usersAnswer: this.props.usersAnswer.answer, all: this.props.stats};
+    }
+    var bounds = {min: this.props.rangeMin, max: this.props.rangeMax};
     return (
-      <div className="answerList" onClick={this.detailsClick}>
-        <RangeSlider
-                min={this.props.rangeMin}
-                max={this.props.rangeMax}
-                onSlideFn = {this.onSlideFn}
-                startValue={0}
-                statsAvg = {this.state.statsAvg}
-                isOnlyStats={false}/>
-        <button className="btn" onClick={this.postAnswer}>{this.state.curValue}</button>
+      <div className="answerList">
+        <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} handlesToDisplay={handlesToDisplay}/>
+        {this.props.usersAnswer ? <button className="detailedStatsButton" onClick={this.detailsClick}>See statistics</button> : null}
       </div>
     );
   }

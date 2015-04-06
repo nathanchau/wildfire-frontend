@@ -56,20 +56,20 @@ var Slider = React.createClass({
     };
   },
   onMouseOver: function() {
-    if(!this.props.quick)
+    if(!this.props.handlesToDisplay)
       this.setState({buttonColor: "Orange"});
   },
   onMouseOut: function() {
-    if(!this.props.quick)
+    if(!this.props.handlesToDisplay)
       this.setState({buttonColor: "rgb(46, 204, 113)"});
   },
   onClick: function(e){
-    if(!this.props.quick)
+    if(!this.props.handlesToDisplay)
       this.props.onSubmit(this.state.curValue);
   },
   componentDidMount: function() {
-    if(this.props.quick) {
-      this.setState({curValue: this.props.quick.usersAnswer, buttonColor: "rgb(244,244,244)"});
+    if(this.props.handlesToDisplay) {
+      this.setState({curValue: this.props.handlesToDisplay.usersAnswer, buttonColor: "rgb(244,244,244)"});
     }
   },
   render: function() {
@@ -90,8 +90,9 @@ var Slider = React.createClass({
       .on("brush", brushed);
 
 
+    // Attach brush to the slider
     if(this.isMounted()) {
-      if(!this.props.quick) {
+      if(!this.props.handlesToDisplay) {
         //slider encapsulates horizontal scale, without the button
         d3.select(".slider")
           .call(brush)
@@ -99,14 +100,8 @@ var Slider = React.createClass({
           .remove();
         }
     }
-
-    if(this.props.quick) {
-      var avgHandle=<Handle className="averageCircle" cx={x(this.props.quick.average)} height={this.props.height}/>
-    }
-
     function brushed() {
-      console.log(thisProps.quick);
-      if(!thisProps.quick) {
+      if(!thisProps.handlesToDisplay) {
         var value = brush.extent()[0];
         if (d3.event.sourceEvent) { // is mouse, not a programmatic event
           value = Math.round(x.invert(d3.mouse(this)[0]));
@@ -115,17 +110,35 @@ var Slider = React.createClass({
         thisObj.setState({curValue: value});
       }
     }
+
+    var submitButton=<g className="buttonText">
+          <rect fill={this.state.buttonColor} onMouseOver={this.onMouseOver} onMouseOut={this.onMouseOut} onClick={this.onClick} x={sliderWidth+gap} width={this.props.buttonWidth} height={this.props.height}/>
+          <text dy={".25em"} x={sliderWidth+gap+this.props.buttonWidth/2} textAnchor="middle" y={this.props.height/2}>{this.state.curValue}</text>
+          </g>
+
+    if(this.props.handlesToDisplay) {
+      // Make slider take up entire width of card
+      submitButton = null;
+      sliderWidth = this.props.width;
+
+      // Create 3 handles to display averages for all, males, and females
+      if(this.props.handlesToDisplay.all)
+        var allHandle=<Handle className="allHandleCircle" cx={x(this.props.handlesToDisplay.all)} height={this.props.height}/>
+      if(this.props.handlesToDisplay.male)
+        var maleHandle=<Handle className="maleHandleCircle" cx={x(this.props.handlesToDisplay.male)} height={this.props.height}/>
+      if(this.props.handlesToDisplay.female)
+        var femaleHandle=<Handle className="femaleHandleCircle" cx={x(this.props.handlesToDisplay.female)} height={this.props.height}/>
+    }
     return (
       <g>
         <g className="slider">
           <Axis bounds={this.props.bounds} width={sliderWidth} height={this.props.height}/>
           <Handle className="handle" cx={x(this.state.curValue)} height={this.props.height}/>
-          {avgHandle}
+          {allHandle}
+          {maleHandle}
+          {femaleHandle}
         </g>
-        <g className="buttonText">
-          <rect fill={this.state.buttonColor} onMouseOver={this.onMouseOver} onMouseOut={this.onMouseOut} onClick={this.onClick} x={sliderWidth+gap} width={this.props.buttonWidth} height={this.props.height}/>
-          <text dy={".25em"} x={sliderWidth+gap+this.props.buttonWidth/2} textAnchor="middle" y={this.props.height/2}>{this.state.curValue}</text>
-        </g>
+        {submitButton}
       </g>
     );
   }
@@ -137,15 +150,16 @@ var ReusableSlider = React.createClass({
       bounds: {min: 0, max: 10},
       width: 960,
       height: 70,
-      margin: {top: 10, right: 20, bottom: 20, left: 10},
-      quick: null//{usersAnswer: 5, average: 2}
+      margin: {top: 10, right: 25, bottom: 20, left: 10},
+      handlesToDisplay: {usersAnswer: 5, all: 1, male: 2, female: 3}
     }
   },
   render: function() {
+    // If no flags are specified, draw the button
     var buttonWidth = 40;
     return (
       <Chart width={this.props.width} height={this.props.height} margin={this.props.margin}>
-        <Slider buttonWidth={buttonWidth} onSubmit={this.props.onSubmit} bounds={this.props.bounds} width={this.props.width - this.props.margin.left - this.props.margin.right} height={this.props.height - this.props.margin.top - this.props.margin.bottom} quick={this.props.quick}/>
+        <Slider buttonWidth={buttonWidth} onSubmit={this.props.onSubmit} bounds={this.props.bounds} width={this.props.width - this.props.margin.left - this.props.margin.right} height={this.props.height - this.props.margin.top - this.props.margin.bottom} handlesToDisplay={this.props.handlesToDisplay} handleFlags={this.props.handleFlags}/>
       </Chart>
     );
   }

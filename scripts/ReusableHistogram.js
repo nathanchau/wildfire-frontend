@@ -90,7 +90,6 @@ var DataSeries = React.createClass({
     var data = d3.layout.histogram()
         .bins(x.ticks(numBins))
           (this.props.data);
-    console.log(data);
     var y = d3.scale.linear()
       .domain([0, d3.max(data, function(d) { return d.y; })])
       .range([this.props.height, 0]);   
@@ -114,7 +113,7 @@ var ReusableHistogram = React.createClass({
       values: [1,6,5,9],
       width: 960,
       height: 100,
-      margin: {top: 10, right: 20, bottom: 20, left: 10}
+      margin: {top: 10, right: 25, bottom: 20, left: 10}
     }
   },
   render: function() {
