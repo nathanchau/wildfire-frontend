@@ -151,11 +151,10 @@ var ReusableSlider = React.createClass({
       width: 960,
       height: 70,
       margin: {top: 10, right: 25, bottom: 20, left: 10},
-      handlesToDisplay: {usersAnswer: 5, all: 1, male: 2, female: 3}
+      handlesToDisplay: null
     }
   },
   render: function() {
-    // If no flags are specified, draw the button
     var buttonWidth = 40;
     return (
       <Chart width={this.props.width} height={this.props.height} margin={this.props.margin}>

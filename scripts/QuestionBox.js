@@ -204,13 +204,12 @@ var Question = React.createClass({
     return false;
   },
 	render: function() {
-		var answeredNode;
 		return (
 			<div className="question">
 			  <QuestionHeader QuestionHeader avatarUrl={this.props.avatarUrl} id={this.props.currentUser.id} username={this.props.username} firstName={this.props.firstName} score={this.props.answers.length} categories={this.props.categories} userId={this.props.userId}/>
 				
         <QuestionContent 
-          index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerOptions={this.props.answerOptions} currentUser={this.props.currentUser} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
+          index={this.props.index} onResponse={this.props.onResponse} questionType={this.props.questionType} questionText={this.props.questionText} answerUrl={this.props.answerUrl} questionId = {this.props.questionId} answerOptions={this.props.answerOptions} currentUserId={this.props.currentUser.id} stats={this.props.stats} usersAnswer={this.props.usersAnswer}/>
 			</div>
 		);
 	}
@@ -254,6 +253,7 @@ var QuestionHeader = React.createClass({
 
 var QuestionContent = React.createClass({
 	render: function() {
+    console.log(this.props.currentUser);
     var answerNode;
     switch(this.props.questionType) {
       case "MC":
@@ -263,7 +263,7 @@ var QuestionContent = React.createClass({
             answerOptions={this.props.answerOptions} 
             questionId={this.props.questionId}
             answers={this.props.answers} 
-            currentUser={this.props.currentUser}
+            currentUserId={this.props.currentUserId}
             stats={this.props.stats}
             onResponse={this.props.onResponse} 
             usersAnswer={this.props.usersAnswer}/>
@@ -275,7 +275,7 @@ var QuestionContent = React.createClass({
             rangeMin={this.props.answerOptions[0]}
             rangeMax={this.props.answerOptions[1]}
             questionId={this.props.questionId}
-            currentUser={this.props.currentUser}
+            currentUserId={this.props.currentUserId}
             stats={this.props.stats}
             onResponse={this.props.onResponse} 
             usersAnswer={this.props.usersAnswer}/>
@@ -301,7 +301,7 @@ var AnswerList = React.createClass({
     }
   },
 	handleClick: function(index) {
-    this.props.onResponse(this.props.questionId, index, this.props.currentUser.id);
+    this.props.onResponse(this.props.questionId, index, this.props.currentUserId);
 	},
 	render: function() {
     var stats;
@@ -335,8 +335,8 @@ var RangeSliderAnswer = React.createClass({
     }
   },
   handleSubmit: function(slideValue) {
-    console.log("submitting response " + slideValue);
-    this.props.onResponse(this.props.questionId, slideValue, this.props.currentUser.id);
+    console.log("userid = " + this.props.currentUserId);
+    this.props.onResponse(this.props.questionId, slideValue, this.props.currentUserId);
   },
   componentDidMount: function() {
     // Set slider width to available space in this DOMNode
@@ -349,6 +349,7 @@ var RangeSliderAnswer = React.createClass({
       handlesToDisplay={usersAnswer: this.props.usersAnswer.answer, all: this.props.stats};
     }
     var bounds = {min: this.props.rangeMin, max: this.props.rangeMax};
+    console.log(handlesToDisplay);
     return (
       <div className="answerList">
         <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} handlesToDisplay={handlesToDisplay}/>
