@@ -16,6 +16,10 @@ var ReusableSlider = require('./ReusableSlider');
 var POST_ANSWER_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/answers/create/";
 var GET_STATS_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/stats/";
 
+// Social
+var FacebookButton = require("../node_modules/react-social").FacebookButton;
+var TwitterButton = require("../node_modules/react-social").TwitterButton;
+
 var rangeStats = {"response":{"region":[{"answer__avg":1.0,"user__region":"en_US"},{"answer__avg":7.0,"user__region":"USA"}],"male":{"avg":5.0,"responses":[{"answer":1},{"answer":9}]},"quick":{"avg":5.0,"responses":[{"answer":1},{"answer":5},{"answer":9}]},"female":{"avg":5.0,"responses":[{"answer":5}]}},"user":null};
 
 var QuestionBox = React.createClass({
@@ -316,7 +320,7 @@ var AnswerList = React.createClass({
                 stats={stats}
                 usersAnswer={this.props.usersAnswer}
                 on_click_fn={this.handleClick}/>
-        {this.props.usersAnswer ? <button className="detailedStatsButton" onClick={this.detailsClick}>See statistics</button> : null}
+        {this.props.usersAnswer ? <span className="buttonWrapper"><FacebookButton className="facebookButton" url={"askwildfire.com/detailedStats/" + this.props.questionId}><i className="fa fa-facebook fa-lg"></i></FacebookButton><TwitterButton className="twitterButton" url={"askwildfire.com/detailedStats/" + this.props.questionId}><i className="fa fa-twitter fa-lg"></i></TwitterButton><button className="detailedStatsButton" onClick={this.detailsClick}><i className="fa fa-pie-chart fa-lg"></i> See statistics</button></span> : null}
 			</div>
 		);
 	}

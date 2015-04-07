@@ -631,18 +631,26 @@ body {
 	cursor: pointer;
 }
 
-.detailedStatsButton {
-	color: rgb(80,80,80);
+.buttonWrapper {
+	width: 100%;
+	text-align: right;
+}
+
+.detailedStatsButton, .facebookButton, .twitterButton {
+	position: relative;
+	color: rgb(120,120,120);
 	background-color: transparent;
 	border-style: none;
 	border-radius: 5px;
-	width: 100%;
 	cursor: pointer;
 	font-family: "Helvetica Neue", sans-serif;
 	font-size: 14px;
-	text-decoration: underline;
-	text-align: right;
-	padding-right: 20px;
+	padding-top: 10px;
+	padding-right: 30px;
+}
+
+.detailedStatsButton:hover, .facebookButton:hover, .twitterButton:hover {
+	color: rgb(60,60,60);
 }
 
 .questionCreatorForm, .logInCreatorForm {
