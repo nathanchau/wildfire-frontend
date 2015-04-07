@@ -476,6 +476,15 @@ body {
 	margin: 0 auto;
 }
 
+.questionThread {
+    -ms-transform: scale(0.95,0.95); /* IE 9 */
+    -webkit-transform: scale(0.95,0.95); /* Safari */
+    transform: scale(0.95,0.95);
+}
+
+.smallQuestionList {
+}
+
 .questionCreatorContainer, .logInContainer {
 	margin-bottom: 15px;
 }

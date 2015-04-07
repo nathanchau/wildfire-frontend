@@ -8,6 +8,7 @@ var ReusableSlider = require('./ReusableSlider');
 var ReusableHistogram = require('./ReusableHistogram');
 var NavBar = require('./NavBar');
 var LogInContainer = require('./LogInContainer');
+var QuestionThread = require('./QuestionThread');
 
 var GET_QUESTION_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/question/";
 var GET_STATS_URL = "https://hidden-castle-6417.herokuapp.com/wildfire/stats/";
@@ -105,6 +106,9 @@ var DetailedStats = React.createClass({
           <LogInContainer isHidden={logInHidden} onLogIn={this.handleLogIn}/>
           <div className="questionList">
             <Question questionObj={this.state.questionObj} stats={this.state.stats} currentUser={this.state.currentUser}/>
+          </div>
+          <div className="questionThread">
+            <QuestionThread id={this.props.id} />
           </div>
         </div>
       </div>
