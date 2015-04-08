@@ -213,12 +213,44 @@ var ProfileHeader = React.createClass({
 	      	}.bind(this)
 	    });
 	},
+  handleFollow: function() {
+    var JSONObj = { "user1": this.props.currentUser.id, "user2": this.props.user.id };
+    var JSONStr = JSON.stringify(JSONObj);
+    console.log("following");
+      $.ajax({
+          url: "http://hidden-castle-6417.herokuapp.com/wildfire/connect/",
+          dataType: 'json',
+          data: JSONStr,
+          type: 'POST',
+          beforeSend: function(xhr) {
+            // Get cookie and set header
+            var cookies = document.cookie.split(";");
+            var tokenValue;
+            for (var i = 0; i < cookies.length; i++) {
+              var eachCookie = cookies[i].split("=");
+              if (eachCookie[0] == "token") {
+                tokenValue = eachCookie[1];
+              }
+            }
+            console.log("Token is " + tokenValue);
+            if (tokenValue) {
+              xhr.setRequestHeader("Authorization", "Token " + tokenValue);
+            }
+          },
+          success: function(data) {
+            console.log("success following");
+          }.bind(this),
+          error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+          }.bind(this)
+      });
+  },
 	render: function() {
 		var buttonNode;
 		if (this.props.user.id == this.props.currentUser.id) {
 			buttonNode = <span><button className="profileSignOutButton" onClick={this.handleLogOut}><i className="fa fa-power-off"></i> Log Out</button><button className="profileSettingsButton"><i className="fa fa-cog"></i> Settings</button></span>;
 		} else {
-			buttonNode = <button className="profileFollowButton"><i className="fa fa-plus"></i> Follow {this.props.user.first_name}</button>;
+			buttonNode = <button className="profileFollowButton" onClick={this.handleFollow}><i className="fa fa-plus"></i> Follow {this.props.user.first_name}</button>;
 		}
 		return (
 			<div className="profileBackground">

@@ -25,6 +25,9 @@ var QuestionCreatorContent = React.createClass({
 			var categories = this.refs.category.getDOMNode().value.split(" ");
 
 			var JSONObj = { "asker": this.props.currentUser.id, "questionType": this.state.contentType, "text": this.refs.question.getDOMNode().value, "options": options, "categories": categories};
+			if (this.props.isReply) {
+				JSONObj = { "asker": this.props.currentUser.id, "questionType": this.state.contentType, "text": this.refs.question.getDOMNode().value, "options": options, "categories": categories, "replyTo": this.props.replyTo};
+			}
 			var JSONStr = JSON.stringify(JSONObj);
 
 			$.ajax({

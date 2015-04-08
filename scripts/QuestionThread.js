@@ -29,6 +29,15 @@ var QuestionThread = React.createClass({
 	getInitialState: function() {
 		return {questionList:null, currentUser: {username:null, first_name:null, avatarUrl:null, id:null}};
 	},
+  handleQuestionCreation: function(data) {
+    // Get current data, add new question, set state
+    console.log("handleQuestionCreation");
+    var newQuestionList = this.state.questionList;
+    newQuestionList.push(data);
+    if (this.isMounted()) {
+      this.setState({questionList: newQuestionList});
+    }
+  },
 	handleResponse: function(questionId, answer, currentUserId) {var JSONObj = { "user": currentUserId, "question": questionId, "answer": answer };
     var JSONStr = JSON.stringify(JSONObj);
     console.log('User ' + currentUserId + ' answered question ' + questionId + ' with answer ' + answer);
@@ -153,11 +162,23 @@ var QuestionThread = React.createClass({
 	    this.loadQuestionsFromServer();
 	},
 	render: function() {
+    var askHidden;
+    if (!this.state.currentUser.id) {
+      askHidden = true;
+    } else {
+      askHidden = false;
+    }
 		return (
-			<QuestionList 
-	          	data={this.state.questionList} 
-	          	currentUser={this.state.currentUser}
-	          	onResponse={this.handleResponse} />
+      <div>
+        <QuestionCreatorContainer isHidden={askHidden} 
+                                  onQuestionCreation={this.handleQuestionCreation} 
+                                  currentUser={this.state.currentUser}
+                                  replyTo={this.props.id} />
+  			<QuestionList 
+  	          	data={this.state.questionList} 
+  	          	currentUser={this.state.currentUser}
+  	          	onResponse={this.handleResponse} />
+      </div>
 		);
 	}
 
@@ -344,6 +365,61 @@ var RangeSliderAnswer = React.createClass({
         <ReusableSlider bounds={bounds} width={this.state.width} onSubmit={this.handleSubmit} handlesToDisplay={handlesToDisplay}/>
         {this.props.usersAnswer ? <button className="detailedStatsButton" onClick={this.detailsClick}>See statistics</button> : null}
       </div>
+    );
+  }
+});
+
+// Question Creator
+var QuestionCreatorContainer = React.createClass({
+  render: function() {
+    var className = "questionCreatorContainer"
+    if (this.props.isHidden) {
+      className = className + " condensed"
+    }
+    var avatarUrl;
+    var username;
+    var first_name;
+    var currentUser;
+    if (currentUser = this.props.currentUser) {
+      avatarUrl = currentUser.avatarUrl;
+      username = currentUser.username;
+      first_name = currentUser.first_name;
+    };
+    return (
+      <div className={className}>
+        <QuestionCreator onQuestionCreation={this.props.onQuestionCreation} 
+                          avatarUrl={avatarUrl} 
+                          username={username} 
+                          first_name={first_name} 
+                          currentUser={this.props.currentUser}
+                          replyTo={this.props.replyTo} />
+      </div>
+    );
+  }
+});
+
+var QuestionCreator = React.createClass({
+  getInitialState: function() {
+    return {isCondensed: true};
+  }, 
+  handleClick: function(e) {
+    this.setState({isCondensed: false});
+    if (this.state.isCondensed) {
+      document.questionCreatorForm.questionText.focus();
+    };
+  },
+  handleSubmit: function(e) {
+    this.setState({isCondensed: true});
+  },
+  render: function() {
+    var creatorNode;
+    if (this.state.isCondensed) {
+      creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} firstName={this.props.first_name} score="0" isCondensed={true} condensedText="Ask a follow up question..."/><QuestionCreatorContent isReply={true} replyTo={this.props.replyTo} isCondensed={true} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
+    } else {
+      creatorNode = <div className="questionCreator"><QuestionHeader avatarUrl={this.props.avatarUrl} username={this.props.username} firstName={this.props.first_name} score="0" isCondensed={false} condensedText="Ask a follow up question..."/><QuestionCreatorContent isReply={true} replyTo={this.props.replyTo} isCondensed={false} onSubmit={this.handleSubmit} onQuestionCreation={this.props.onQuestionCreation} currentUser={this.props.currentUser}/></div>;
+    }
+    return (
+      <div onClick={this.handleClick}>{creatorNode}</div>
     );
   }
 });

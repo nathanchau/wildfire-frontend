@@ -675,6 +675,11 @@ body {
 	color: rgb(100,100,100);
 	border: none;
 	outline: 0;
+	resize: none !important;
+}
+
+textarea {
+	resize: none !important;
 }
 
 .answered p {
