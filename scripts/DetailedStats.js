@@ -124,11 +124,20 @@ var Question = React.createClass({
     var furtherStats;
     switch(this.props.questionObj.questionType) {
       case "MC":
+          // argh very hacky
+          var ageData=[];
+            ageData.option1 = (this.props.stats.age.kids.option1 + this.props.stats.age.kids.option2  + this.props.stats.age.kids.option3 + this.props.stats.age.kids.option4 + this.props.stats.age.kids.option5);
+            ageData.option2 = (this.props.stats.age.teens.option1 + this.props.stats.age.teens.option2  + this.props.stats.age.teens.option3 + this.props.stats.age.teens.option4 + this.props.stats.age.teens.option5);
+            ageData.option3 = (this.props.stats.age.twenties.option1 + this.props.stats.age.twenties.option2  + this.props.stats.age.twenties.option3 + this.props.stats.age.twenties.option4 + this.props.stats.age.twenties.option5);
+            ageData.option4 = (this.props.stats.age.thirties.option1 + this.props.stats.age.thirties.option2  + this.props.stats.age.thirties.option3 + this.props.stats.age.thirties.option4 + this.props.stats.age.thirties.option5);
+            ageData.option5 = (this.props.stats.age.older.option1 + this.props.stats.age.older.option2  + this.props.stats.age.older.option3 + this.props.stats.age.older.option4 + this.props.stats.age.older.option5);
           furtherStats=<div> 
             <h4>What the men think</h4>
             <PieChart answerOptions={this.props.questionObj.options} data={this.props.stats.male}/>
             <h4>What the women think</h4>
             <PieChart answerOptions={this.props.questionObj.options} data={this.props.stats.female}/>
+            <h4>Age of people who answered</h4>
+            <PieChart answerOptions={["kids", "teens", "twenties", "thirties", "older"]} data={ageData}/>
           </div>
           break;
       case "RG":
