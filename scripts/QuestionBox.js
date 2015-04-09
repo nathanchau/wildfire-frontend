@@ -77,10 +77,11 @@ var QuestionBox = React.createClass({
   		this.setState({data: newData});
   	}
 	},
-	handleResponse: function(questionId, answer, currentUserId) {var JSONObj = { "user": currentUserId, "question": questionId, "answer": answer };
+	handleResponse: function(questionId, answer, currentUserId) {
+    var JSONObj = { "user": this.props.currentUser.id, "question": questionId, "answer": answer };
     var JSONStr = JSON.stringify(JSONObj);
-    console.log('User ' + currentUserId + ' answered question ' + questionId + ' with answer ' + answer);
-    if(!currentUserId) {
+    console.log('User ' + this.props.currentUser.id + ' answered question ' + questionId + ' with answer ' + answer);
+    if(!this.props.currentUser.id) {
       console.log("User is not signed in, userId is null");
       return;
     }
@@ -320,7 +321,7 @@ var AnswerList = React.createClass({
                 stats={stats}
                 usersAnswer={this.props.usersAnswer}
                 on_click_fn={this.handleClick}/>
-        {this.props.usersAnswer ? <span className="buttonWrapper"><FacebookButton className="facebookButton" url={"askwildfire.com/detailedStats/" + this.props.questionId}><i className="fa fa-facebook fa-lg"></i></FacebookButton><TwitterButton className="twitterButton" url={"askwildfire.com/detailedStats/" + this.props.questionId}><i className="fa fa-twitter fa-lg"></i></TwitterButton><button className="detailedStatsButton" onClick={this.detailsClick}><i className="fa fa-pie-chart fa-lg"></i> See statistics</button></span> : null}
+        {this.props.usersAnswer ? <span className="buttonWrapper"><FacebookButton className="facebookButton" url={"askwildfire.com/#!/detailedStats/" + this.props.questionId}><i className="fa fa-facebook fa-lg"></i></FacebookButton><TwitterButton className="twitterButton" url={"askwildfire.com/#!/detailedStats/" + this.props.questionId}><i className="fa fa-twitter fa-lg"></i></TwitterButton><button className="detailedStatsButton" onClick={this.detailsClick}><i className="fa fa-pie-chart fa-lg"></i> See statistics</button></span> : null}
 			</div>
 		);
 	}
